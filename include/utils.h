@@ -14,7 +14,7 @@ struct FileNotFound : public std::exception {
   const char* what() const throw();
 };
 
-typedef std::function<bool(atn::CalcElem)> predicate;
+typedef std::function<bool(CALC_ELEM)> predicate;
 
 int random_seed();
 
@@ -24,9 +24,9 @@ double factorial(int);
 
 predicate all(const std::vector<predicate>&);
 
-std::vector<atn::CalcElem> filter(const std::vector<atn::CalcElem>, predicate);
+std::vector<CALC_ELEM> filter(const std::vector<CALC_ELEM>, predicate);
 
-std::vector<std::vector<atn::CalcElem>> split_vec(const std::vector<atn::CalcElem>&, uint8_t);
+std::vector<std::vector<CALC_ELEM>> split_vec(const std::vector<CALC_ELEM>&, uint8_t);
 
 }  // namespace atn
 

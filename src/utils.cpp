@@ -31,7 +31,7 @@ double atn::utils::factorial(int x) {
 }
 
 atn::utils::predicate atn::utils::all(const std::vector<atn::utils::predicate>& predicates) {
-  return [predicates] (atn::CalcElem x) {
+  return [predicates] (CALC_ELEM x) {
     bool result;
     for (auto it = predicates.begin(); it != predicates.end(); ++it) {
       result = (*it)(x);
@@ -41,15 +41,15 @@ atn::utils::predicate atn::utils::all(const std::vector<atn::utils::predicate>& 
   };
 }
 
-std::vector<atn::CalcElem> atn::utils::filter(
-    const std::vector<atn::CalcElem> elements, atn::utils::predicate pred) {
-  std::vector<atn::CalcElem> out;
+std::vector<CALC_ELEM> atn::utils::filter(
+    const std::vector<CALC_ELEM> elements, atn::utils::predicate pred) {
+  std::vector<CALC_ELEM> out;
   std::copy_if(elements.begin(), elements.end(), std::back_inserter(out), pred);
   return out;
 }
 
-std::vector<std::vector<atn::CalcElem>> atn::utils::split_vec(const std::vector<atn::CalcElem>& vec, uint8_t n) {
-  std::vector<std::vector<atn::CalcElem>> out_vec;
+std::vector<std::vector<CALC_ELEM>> atn::utils::split_vec(const std::vector<CALC_ELEM>& vec, uint8_t n) {
+  std::vector<std::vector<CALC_ELEM>> out_vec;
   size_t length = vec.size() / n;
   size_t remain = vec.size() % n;
   size_t begin = 0;

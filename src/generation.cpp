@@ -13,7 +13,7 @@
 #define THREAD_COUNT 4
 
 std::mutex m;
-std::vector<atn::CalcElem> initial_valid_elems;
+std::vector<CALC_ELEM> initial_valid_elems;
 uint64_t tested_count = 0, submitted_count = 0, error_count = 0;
 double curr_best = 10000.0;
 
@@ -33,7 +33,7 @@ void atn::Generator::run() {
 std::thread atn::Generator::spawn_helper(atn::Generator gen) {
   return std::thread(
       [](atn::Generator gen) {
-        atn::CalcElem current_elem;
+        CALC_ELEM current_elem;
         while (true) {
           {
             std::lock_guard<std::mutex> guard(m);
@@ -47,7 +47,7 @@ std::thread atn::Generator::spawn_helper(atn::Generator gen) {
             initial_valid_elems.pop_back();
           }
           std::cout << "Thread: " << std::this_thread::get_id() << " has begun "
-                    << current_elem.repr << "                 " << std::endl;
+                    << atn::repr(current_elem) << "                 " << std::endl;
           gen.calc.calc.emplace_back(current_elem);
           gen.failed_due_to_error = false;
           gen.failed_index = -1;
@@ -135,12 +135,12 @@ void atn::Generator::gen_approx(bool first_run) {
 
   // Filter any operator which requires too many arguments
   filters.push_back(
-      [validation](atn::CalcElem x) { return x.args() <= validation; });
+      [validation](CALC_ELEM x) { return CALC_ARGS(x) <= validation; });
 
   // If the number stack elements left to have is equal to the number of binary
   // operators needed to complete the formula, filter non binary operators
   if (MAX_STACK_SIZE - this->calc.calc.size() == validation - 1) {
-    filters.push_back([](atn::CalcElem x) { return x.args() > 1; });
+    filters.push_back([](CALC_ELEM x) { return CALC_ARGS(x) > 1; });
   }
 
   auto valid_calc_elems =

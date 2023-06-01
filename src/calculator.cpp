@@ -7,29 +7,10 @@
 #include <stack>
 #include <stdexcept>
 
-uint8_t atn::CalcElem::args() const {
-  switch (this->tag) {
-    case CalcElem::UNARY_OP:
-      return 1;
-    case CalcElem::BINARY_OP:
-      return 2;
-    default:
-      return 0;
-  }
-}
-
 int8_t atn::Calculator::validate() const {
   int8_t result = 0;
   for (auto it = this->calc.begin(); it != this->calc.end(); ++it) {
-    switch (it->tag) {
-      case CalcElem::VALUE:
-      case CalcElem::INPUT:
-        ++result;
-        break;
-      case CalcElem::BINARY_OP:
-        --result;
-        break;
-    }
+      result += (1 - CALC_ARGS(*it));
     if (result < 1) {
       throw atn::CalculatorError("Stack ran out of numbers");
     }
@@ -42,29 +23,101 @@ double atn::Calculator::calculate(const Ellipse& ellipse) const {
   double a, b, result;
   int index = 0;
   for (auto it = this->calc.begin(); it != this->calc.end(); ++it, ++index) {
-    switch (it->tag) {
-      case CalcElem::VALUE:
-        result = it->value;
+    switch (*it & CALC_TYPE_MASK) {
+      case CALC_CONST:
+        switch (*it) {
+          case CALC_1:
+            result = 1.0;
+            break;
+          case CALC_2:
+            result = 2.0;
+            break;
+          case CALC_3:
+            result = 3.0;
+            break;
+          case CALC_4:
+            result = 4.0;
+            break;
+          case CALC_5:
+            result = 5.0;
+            break;
+          case CALC_6:
+            result = 6.0;
+            break;
+          case CALC_7:
+            result = 7.0;
+            break;
+          case CALC_8:
+            result = 8.0;
+            break;
+          case CALC_9:
+            result = 9.0;
+            break;
+          case CALC_10:
+            result = 10.0;
+            break;
+          case CALC_PI:
+            result = M_PI;
+            break;
+          case CALC_A:
+            result = ellipse.a();
+            break;
+          case CALC_B:
+            result = ellipse.b();
+            break;
+          case CALC_C:
+            result = ellipse.c();
+            break;
+          case CALC_E:
+            result = ellipse.e();
+            break;
+          case CALC_H:
+            result = ellipse.h();
+            break;
+        }
         break;
-      case CalcElem::INPUT:
-        result = (ellipse.*(it->input))();
+      case CALC_UNARY:
+        a = num_stack.top();
+        num_stack.pop();
+        try {
+          switch (*it) {
+            case CALC_SQRT:
+              result = sqrt(a);
+              break;
+            case CALC_NEG:
+              result = -a;
+              break;
+            case CALC_INV:
+              result = 1.0 / a;
+              break;
+          }
+        } catch (std::exception& e) {
+          throw atn::OperatorError(index);
+        }
         break;
-      case CalcElem::BINARY_OP:
+      case CALC_BINARY:
         a = num_stack.top();
         num_stack.pop();
         b = num_stack.top();
         num_stack.pop();
         try {
-          result = it->bi_op(a, b);
-        } catch (std::exception& e) {
-          throw atn::OperatorError(index);
-        }
-        break;
-      case CalcElem::UNARY_OP:
-        a = num_stack.top();
-        num_stack.pop();
-        try {
-          result = it->u_op(a);
+          switch (*it) {
+            case CALC_ADD:
+              result = a + b;
+              break;
+            case CALC_SUB:
+              result = a - b;
+              break;
+            case CALC_MUL:
+              result = a * b;
+              break;
+            case CALC_DIV:
+              result = a / b;
+              break;
+            case CALC_EXP:
+              result = std::pow(a, b);
+              break;
+          }
         } catch (std::exception& e) {
           throw atn::OperatorError(index);
         }
@@ -87,7 +140,7 @@ std::string atn::Calculator::to_str() const {
   ss << "Calculator([";
   for (auto it = this->calc.begin(); it != this->calc.end(); ++it) {
     if (it != this->calc.begin()) ss << ", ";
-    ss << it->repr;
+    ss << atn::repr(*it);
   }
   ss << "])";
   return ss.str();
@@ -104,94 +157,87 @@ const char* atn::OperatorError::what() const throw() {
   return ("Operator error at " + std::to_string(this->failed_index)).c_str();
 }
 
-std::vector<atn::CalcElem> atn::get_possible_elems() {
-  std::vector<atn::CalcElem> result;
-  atn::CalcElem add_op;
-  add_op.tag = atn::CalcElem::BINARY_OP;
-  add_op.repr = "ops.ADD_OP";
-  add_op.bi_op = [](double a, double b) { return a + b; };
-  result.push_back(add_op);
-  atn::CalcElem sub_op;
-  sub_op.tag = atn::CalcElem::BINARY_OP;
-  sub_op.repr = "ops.SUB_OP";
-  sub_op.bi_op = [](double a, double b) { return a - b; };
-  result.push_back(sub_op);
-  atn::CalcElem mul_op;
-  mul_op.tag = atn::CalcElem::BINARY_OP;
-  mul_op.repr = "ops.MUL_OP";
-  mul_op.bi_op = [](double a, double b) { return a * b; };
-  result.push_back(mul_op);
-  atn::CalcElem div_op;
-  div_op.tag = atn::CalcElem::BINARY_OP;
-  div_op.repr = "ops.DIV_OP";
-  div_op.bi_op = [](double a, double b) { return a / b; };
-  result.push_back(div_op);
-  atn::CalcElem exp_op;
-  exp_op.tag = atn::CalcElem::BINARY_OP;
-  exp_op.repr = "ops.EXP_OP";
-  exp_op.bi_op = &std::pow;
-  result.push_back(exp_op);
-  atn::CalcElem sqrt_op;
-  sqrt_op.tag = atn::CalcElem::UNARY_OP;
-  sqrt_op.repr = "ops.SQRT_OP";
-  sqrt_op.u_op = &std::sqrt;
-  result.push_back(sqrt_op);
-  atn::CalcElem neg_op;
-  neg_op.tag = atn::CalcElem::UNARY_OP;
-  neg_op.repr = "ops.NEG_OP";
-  neg_op.u_op = [](double a) { return -a; };
-  result.push_back(neg_op);
-  atn::CalcElem inv_op;
-  inv_op.tag = atn::CalcElem::UNARY_OP;
-  inv_op.repr = "ops.INV_OP";
-  inv_op.u_op = [](double a) { return 1.0 / a; };
-  result.push_back(inv_op);
-  atn::CalcElem pi;
-  pi.tag = atn::CalcElem::VALUE;
-  pi.repr = "math.pi";
-  pi.value = M_PI;
-  result.push_back(pi);
-  atn::CalcElem a_input;
-  a_input.tag = atn::CalcElem::INPUT;
-  a_input.repr = "EllipseProperties.a";
-  a_input.input = &atn::Ellipse::a;
-  result.push_back(a_input);
-  atn::CalcElem b_input;
-  b_input.tag = atn::CalcElem::INPUT;
-  b_input.repr = "EllipseProperties.b";
-  b_input.input = &atn::Ellipse::b;
-  result.push_back(b_input);
-  /*
-  atn::CalcElem c_input;
-  c_input.tag = atn::CalcElem::INPUT;
-  c_input.repr = "EllipseProperties.c";
-  c_input.input = &atn::Ellipse::c;
-  result.push_back(c_input);
-  atn::CalcElem e_input;
-  e_input.tag = atn::CalcElem::INPUT;
-  e_input.repr = "EllipseProperties.e";
-  e_input.input = &atn::Ellipse::e;
-  result.push_back(e_input);
-  */
-  atn::CalcElem h_input;
-  h_input.tag = atn::CalcElem::INPUT;
-  h_input.repr = "EllipseProperties.h";
-  h_input.input = &atn::Ellipse::h;
-  result.push_back(h_input);
-  for (uint8_t i = 1; i <= 10; ++i) {
-    atn::CalcElem c;
-    c.tag = atn::CalcElem::VALUE;
-    c.repr = std::to_string(i);
-    c.value = 1.0 * i;
-    result.push_back(c);
+std::string atn::repr(CALC_ELEM x) {
+  switch (x) {
+    case CALC_ADD:
+      return "ops.ADD_OP";
+    case CALC_SUB:
+      return "ops.SUB_OP";
+    case CALC_MUL:
+      return "ops.MUL_OP";
+    case CALC_DIV:
+      return "ops.DIV_OP";
+    case CALC_EXP:
+      return "ops.EXP_OP";
+    case CALC_SQRT:
+      return "ops.SQRT_OP";
+    case CALC_NEG:
+      return "ops.NEG_OP";
+    case CALC_INV:
+      return "ops.INV_OP";
+    case CALC_PI:
+      return "math.pi";
+    case CALC_A:
+      return "EllipseProperties.a";
+    case CALC_B:
+      return "EllipseProperties.b";
+    case CALC_C:
+      return "EllipseProperties.c";
+    case CALC_E:
+      return "EllipseProperties.e";
+    case CALC_H:
+      return "EllipseProperties.h";
+    case CALC_1:
+      return "1";
+    case CALC_2:
+      return "2";
+    case CALC_3:
+      return "3";
+    case CALC_4:
+      return "4";
+    case CALC_5:
+      return "5";
+    case CALC_6:
+      return "6";
+    case CALC_7:
+      return "7";
+    case CALC_8:
+      return "8";
+    case CALC_9:
+      return "9";
+    case CALC_10:
+      return "10";
   }
-  return result;
 }
 
-atn::CalcElem atn::get(const std::vector<atn::CalcElem>& elems,
-                       std::string repr) {
-  for (auto it = elems.begin(); it != elems.end(); ++it) {
-    if (it->repr == repr) return *it;
-  }
-  throw atn::CalculatorError("CalcElem could not be found");
+std::vector<CALC_ELEM> atn::get_possible_elems() {
+  std::vector<CALC_ELEM> result{
+    CALC_ADD,
+    CALC_SUB,
+    CALC_MUL,
+    CALC_DIV,
+    CALC_EXP,
+    CALC_SQRT,
+    CALC_NEG,
+    CALC_INV,
+    CALC_PI,
+    CALC_A,
+    CALC_B,
+    /*
+    CALC_C,
+    CALC_E,
+    */
+    CALC_H,
+    CALC_1,
+    CALC_2,
+    CALC_3,
+    CALC_4,
+    CALC_5,
+    CALC_6,
+    CALC_7,
+    CALC_8,
+    CALC_9,
+    CALC_10
+  };
+  return result;
 }

@@ -15,7 +15,7 @@ namespace atn {
 struct Generator {
   std::default_random_engine rng;
   atn::Calculator calc;
-  std::vector<atn::CalcElem> all_calc_elems;
+  std::vector<CALC_ELEM> all_calc_elems;
   bool failed_due_to_error;
   int failed_index;
   atn::TestData data;

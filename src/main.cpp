@@ -9,11 +9,11 @@
 #include "utils.h"
 
 int main(int argc, char** argv) {
-  std::vector<atn::CalcElem> elems = atn::get_possible_elems();
+  std::vector<CALC_ELEM> elems = atn::get_possible_elems();
   atn::Calculator c{
-      {atn::get(elems, "math.pi"), atn::get(elems, "EllipseProperties.a"),
-       atn::get(elems, "EllipseProperties.b"), atn::get(elems, "ops.ADD_OP"),
-       atn::get(elems, "ops.MUL_OP")}};
+      {CALC_PI, CALC_A,
+       CALC_B, CALC_ADD,
+       CALC_MUL}};
   atn::Generator gen(atn::utils::random_seed(), c);
   gen.run();
 }
