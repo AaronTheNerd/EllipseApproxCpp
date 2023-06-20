@@ -5,52 +5,54 @@
 #define _INCLUDE_CALCULATOR_H_
 
 #include <stdint.h>
+
 #include <string>
 #include <vector>
+
 #include "ellipse.h"
 
-#define CALC_ELEM char // Of the form: 0b00TTVVVV
+#define CALC_ELEM char  // Of the form: 0b00TTVVVV
 // TT is the type and VVVV is the value
 
 #define CALC std::string
 
-#define CALC_TYPE_MASK   0b00110000
-#define CALC_CONST       0b00000000
-#define CALC_UNARY       0b00010000
-#define CALC_BINARY      0b00100000
-#define CALC_INVALID     0b00110000
-#define CALC_TYPE_SHIFT  4
-#define CALC_VALUE_MASK  0b00001111
+#define CALC_TYPE_MASK 0b00110000
+#define CALC_CONST 0b00000000
+#define CALC_UNARY 0b00010000
+#define CALC_BINARY 0b00100000
+#define CALC_INVALID 0b00110000
+#define CALC_TYPE_SHIFT 4
+#define CALC_VALUE_MASK 0b00001111
 
-#define CALC_PI          ((char)0b00000000)
-#define CALC_1           ((char)0b00000001)
-#define CALC_2           ((char)0b00000010)
-#define CALC_3           ((char)0b00000011)
-#define CALC_4           ((char)0b00000100)
-#define CALC_5           ((char)0b00000101)
-#define CALC_6           ((char)0b00000110)
-#define CALC_7           ((char)0b00000111)
-#define CALC_8           ((char)0b00001000)
-#define CALC_9           ((char)0b00001001)
-#define CALC_10          ((char)0b00001010)
-#define CALC_A           ((char)0b00001011)
-#define CALC_B           ((char)0b00001100)
-#define CALC_C           ((char)0b00001101)
-#define CALC_E           ((char)0b00001110)
-#define CALC_H           ((char)0b00001111)
-#define CALC_SQRT        ((char)0b00010000)
-#define CALC_NEG         ((char)0b00010001)
-#define CALC_INV         ((char)0b00010010)
-#define CALC_ADD         ((char)0b00100000)
-#define CALC_SUB         ((char)0b00100001)
-#define CALC_MUL         ((char)0b00100010)
-#define CALC_DIV         ((char)0b00100011)
-#define CALC_EXP         ((char)0b00100100)
+#define CALC_PI ((char)0b00000000)
+#define CALC_1 ((char)0b00000001)
+#define CALC_2 ((char)0b00000010)
+#define CALC_3 ((char)0b00000011)
+#define CALC_4 ((char)0b00000100)
+#define CALC_5 ((char)0b00000101)
+#define CALC_6 ((char)0b00000110)
+#define CALC_7 ((char)0b00000111)
+#define CALC_8 ((char)0b00001000)
+#define CALC_9 ((char)0b00001001)
+#define CALC_10 ((char)0b00001010)
+#define CALC_A ((char)0b00001011)
+#define CALC_B ((char)0b00001100)
+#define CALC_C ((char)0b00001101)
+#define CALC_E ((char)0b00001110)
+#define CALC_H ((char)0b00001111)
+#define CALC_SQRT ((char)0b00010000)
+#define CALC_NEG ((char)0b00010001)
+#define CALC_INV ((char)0b00010010)
+#define CALC_ADD ((char)0b00100000)
+#define CALC_SUB ((char)0b00100001)
+#define CALC_MUL ((char)0b00100010)
+#define CALC_DIV ((char)0b00100011)
+#define CALC_EXP ((char)0b00100100)
 
-#define CALC_ARGS(x)     ((x & CALC_TYPE_MASK) >> CALC_TYPE_SHIFT)
+#define CALC_ARGS(x) ((x & CALC_TYPE_MASK) >> CALC_TYPE_SHIFT)
 
 namespace atn {
-  
+
 struct Calculator {
   CALC calc;
   uint8_t original_size;

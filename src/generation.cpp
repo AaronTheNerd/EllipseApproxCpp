@@ -2,10 +2,13 @@
 // Copyright 2022
 
 #include "generation.h"
-#include <math.h>     // isnan
+
+#include <math.h>  // isnan
+
 #include <algorithm>  // std::shuffle
 #include <iostream>   // std::cout, std::endl
 #include <mutex>      // std::mutex, std::lock_guard
+
 #include "interfaces.h"
 #include "utils.h"
 
@@ -13,7 +16,7 @@
 
 std::mutex m;
 uint64_t tested_count = 0, submitted_count = 0, error_count = 0;
-double curr_best = 500.0;
+double curr_best = 10000.0;
 
 void register_formula(atn::Calculator calc, std::thread::id id) {
   std::lock_guard<std::mutex> guard(m);
@@ -25,14 +28,15 @@ void register_error() {
   error_count++;
 }
 
-void register_test(std::chrono::time_point<std::chrono::high_resolution_clock> start_time) {
+void register_test(
+    std::chrono::time_point<std::chrono::high_resolution_clock> start_time) {
   std::lock_guard<std::mutex> guard(m);
   tested_count++;
   std::chrono::duration<double> dur =
       std::chrono::high_resolution_clock::now() - start_time;
   if (tested_count % 50000 == 0)
     atn::interface::tested(tested_count, submitted_count, error_count,
-                          dur.count());
+                           dur.count());
 }
 
 void register_submitted_test(double test_result, atn::Calculator calc) {
@@ -63,7 +67,8 @@ void atn::Generator::run() {
   if (THREAD_COUNT > 1) {
     std::vector<std::thread> threads;
     std::vector<atn::Generator*> gens;
-    auto valid_elems = atn::utils::split_calc(this->layers[0].filtered_elems, 4);
+    auto valid_elems =
+        atn::utils::split_calc(this->layers[0].filtered_elems, 4);
     std::cout << "- Spawning " << THREAD_COUNT << " threads" << std::endl;
     for (uint8_t i = 0; i < THREAD_COUNT; ++i) {
       atn::Generator* gen = new Generator(*this);
@@ -83,14 +88,18 @@ void atn::Generator::run() {
 
 void atn::Generator::generate_initial_layers() {
   for (uint8_t i = 0; i < this->calc.max_added; ++i) {
-    std::shuffle(this->all_calc_elems.begin(), this->all_calc_elems.end(), this->rng);
-    this->layers.push_back(atn::LayerState{0, this->all_calc_elems, this->all_calc_elems});
+    std::shuffle(this->all_calc_elems.begin(), this->all_calc_elems.end(),
+                 this->rng);
+    this->layers.push_back(
+        atn::LayerState{0, this->all_calc_elems, this->all_calc_elems});
   }
   // Filter the first layer
-  this->layers[0].filtered_elems = this->get_valid_calc_elems(this->layers[0].all_elems, 0);
+  this->layers[0].filtered_elems =
+      this->get_valid_calc_elems(this->layers[0].all_elems, 0);
 }
 
-CALC atn::Generator::get_valid_calc_elems(const CALC& all_elems, uint8_t layer_index) const {
+CALC atn::Generator::get_valid_calc_elems(const CALC& all_elems,
+                                          uint8_t layer_index) const {
   std::vector<atn::utils::predicate> filters;
   uint8_t validation = this->calc.validate();
   // Filter any operator which requires too many arguments
@@ -126,9 +135,9 @@ void atn::Generator::gen_approx_inline() {
   double test_result = NAN;
 
   while (layer_index < this->layers.size()) {
-
     // Check that no other elements can be added
-    if (this->layers[layer_index].curr_index >= this->layers[layer_index].filtered_elems.size()) {
+    if (this->layers[layer_index].curr_index >=
+        this->layers[layer_index].filtered_elems.size()) {
       // Go up a layer
       this->calc.calc[this->calc.original_size + layer_index] = CALC_INVALID;
       layer_index--;
@@ -136,9 +145,10 @@ void atn::Generator::gen_approx_inline() {
     }
 
     // Add a new element to the calculator
-    this->calc.calc[this->calc.original_size + layer_index] = 
-      this->layers[layer_index].filtered_elems[this->layers[layer_index].curr_index++];
-    //register_formula(this->calc, std::this_thread::get_id());
+    this->calc.calc[this->calc.original_size + layer_index] =
+        this->layers[layer_index]
+            .filtered_elems[this->layers[layer_index].curr_index++];
+    // register_formula(this->calc, std::this_thread::get_id());
 
     // Test the current calculator
     try {
@@ -149,7 +159,8 @@ void atn::Generator::gen_approx_inline() {
       // Go back to when the layer index was setting the operator which failed
       layer_index = e.failed_index - this->calc.original_size;
       uint8_t replace_amount = this->calc.calc.size() - e.failed_index;
-      this->calc.calc.replace(e.failed_index, replace_amount, replace_amount, CALC_INVALID);
+      this->calc.calc.replace(e.failed_index, replace_amount, replace_amount,
+                              CALC_INVALID);
       continue;
     }
 
@@ -167,7 +178,8 @@ void atn::Generator::gen_approx_inline() {
         // Go back to when the layer index was setting the operator which failed
         layer_index = e.failed_index - this->calc.original_size;
         uint8_t replace_amount = this->calc.calc.size() - e.failed_index;
-        this->calc.calc.replace(e.failed_index, replace_amount, replace_amount, CALC_INVALID);
+        this->calc.calc.replace(e.failed_index, replace_amount, replace_amount,
+                                CALC_INVALID);
         continue;
       }
 
@@ -179,7 +191,8 @@ void atn::Generator::gen_approx_inline() {
     if (layer_index + 1 < this->layers.size()) {
       layer_index++;
       // Apply filters to next layer
-      this->layers[layer_index].filtered_elems = this->get_valid_calc_elems(this->layers[layer_index].all_elems, layer_index);
+      this->layers[layer_index].filtered_elems = this->get_valid_calc_elems(
+          this->layers[layer_index].all_elems, layer_index);
       // Reset index in next layer
       this->layers[layer_index].curr_index = 0;
     } else {
@@ -188,4 +201,3 @@ void atn::Generator::gen_approx_inline() {
     }
   }
 }
-

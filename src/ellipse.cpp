@@ -2,7 +2,9 @@
 // Copyright 2022
 
 #include "ellipse.h"
+
 #include <cmath>
+
 #include "utils.h"
 
 double atn::Ellipse::a() const { return this->_a; }

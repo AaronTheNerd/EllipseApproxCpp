@@ -2,12 +2,14 @@
 // Copyright 2022
 
 #include "test_approx.h"
+
 #include <cmath>
 #include <fstream>
 #include <iomanip>
 #include <iostream>
 #include <sstream>
 #include <string>
+
 #include "utils.h"
 #ifdef NVIDIA_GPU
 #include <thrust/device_vector.h>

@@ -5,6 +5,7 @@
 #define _INCLUDE_TEST_APPROX_H_
 
 #include <tuple>
+
 #include "calculator.h"
 #include "ellipse.h"
 #ifndef NVIDIA_GPU

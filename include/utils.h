@@ -4,8 +4,10 @@
 #ifndef _INCLUDE_UTILS_H_
 #define _INCLUDE_UTILS_H_
 
-#include <functional>
 #include <time.h>
+
+#include <functional>
+
 #include "calculator.h"
 
 namespace atn::utils {
@@ -28,6 +30,6 @@ CALC filter(const CALC&, predicate);
 
 std::vector<CALC> split_calc(const CALC&, uint8_t);
 
-}  // namespace atn
+}  // namespace atn::utils
 
 #endif  // _INCLUDE_UTILS_H_

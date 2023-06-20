@@ -7,6 +7,7 @@
 #include <chrono>
 #include <random>
 #include <thread>
+
 #include "calculator.h"
 #include "test_approx.h"
 

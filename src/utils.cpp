@@ -2,16 +2,15 @@
 // Copyright 2022
 
 #include "utils.h"
+
+#include <algorithm>  // std::copy_if, std::distance
 #include <iostream>
-#include <algorithm> // std::copy_if, std::distance
 
 const char* atn::utils::FileNotFound::what() const throw() {
   return "File failed to be open";
 }
 
-int atn::utils::random_seed() {
-  return time(NULL);
-}
+int atn::utils::random_seed() { return time(NULL); }
 
 double atn::utils::dfact(int x) {
   double result = 1.0;
@@ -30,8 +29,9 @@ double atn::utils::factorial(int x) {
   return result;
 }
 
-atn::utils::predicate atn::utils::all(const std::vector<atn::utils::predicate>& predicates) {
-  return [predicates] (CALC_ELEM x) {
+atn::utils::predicate atn::utils::all(
+    const std::vector<atn::utils::predicate>& predicates) {
+  return [predicates](CALC_ELEM x) {
     bool result;
     for (auto it = predicates.begin(); it != predicates.end(); ++it) {
       result = (*it)(x);
@@ -41,8 +41,7 @@ atn::utils::predicate atn::utils::all(const std::vector<atn::utils::predicate>& 
   };
 }
 
-CALC atn::utils::filter(
-    const CALC& elements, atn::utils::predicate pred) {
+CALC atn::utils::filter(const CALC& elements, atn::utils::predicate pred) {
   CALC out;
   std::copy_if(elements.begin(), elements.end(), std::back_inserter(out), pred);
   return out;

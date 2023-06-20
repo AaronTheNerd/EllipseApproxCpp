@@ -2,12 +2,14 @@
 // Copyright 2022
 
 #include "calculator.h"
+
 #include <cmath>
 #include <sstream>
 #include <stack>
 #include <stdexcept>
 
-atn::Calculator::Calculator(CALC calc, uint8_t max_added): calc(calc), original_size(this->calc.size()), max_added(max_added) {
+atn::Calculator::Calculator(CALC calc, uint8_t max_added)
+    : calc(calc), original_size(this->calc.size()), max_added(max_added) {
   this->calc.append(this->max_added, CALC_INVALID);
 }
 
@@ -219,7 +221,7 @@ std::string atn::repr(CALC_ELEM x) {
 
 CALC atn::get_possible_elems() {
   return std::string() + CALC_ADD + CALC_SUB + CALC_MUL + CALC_DIV + CALC_EXP +
-      CALC_SQRT + CALC_NEG + CALC_INV +
-      CALC_PI + CALC_A + CALC_B + CALC_C + CALC_E + CALC_H +
-      CALC_1 + CALC_2 + CALC_3 + CALC_4 + CALC_5 + CALC_6 + CALC_7 + CALC_8 + CALC_9 + CALC_10;
+         CALC_SQRT + CALC_NEG + CALC_INV + CALC_PI + CALC_A + CALC_B + CALC_C +
+         CALC_E + CALC_H + CALC_1 + CALC_2 + CALC_3 + CALC_4 + CALC_5 + CALC_6 +
+         CALC_7 + CALC_8 + CALC_9 + CALC_10;
 }
