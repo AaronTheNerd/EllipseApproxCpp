@@ -5,8 +5,13 @@
 #define _INCLUDE_INTERFACES_H_
 
 #include "calculator.h"
+#include <thread>
 
 namespace atn::interface {
+
+void generation_started();
+
+void formula_created(atn::Calculator, std::thread::id);
 
 void submitted(atn::Calculator, double, uint64_t);
 

@@ -12,21 +12,31 @@
 
 namespace atn {
 
+struct LayerState {
+  uint8_t curr_index;
+  CALC all_elems;
+  CALC filtered_elems;
+};
+
 struct Generator {
+  uint64_t seed;
   std::default_random_engine rng;
   atn::Calculator calc;
-  std::vector<CALC_ELEM> all_calc_elems;
+  CALC all_calc_elems;
   bool failed_due_to_error;
   int failed_index;
   atn::TestData data;
   std::chrono::time_point<std::chrono::high_resolution_clock> start;
+  std::vector<LayerState> layers;
 
   Generator(uint64_t, atn::Calculator);
   void run();
 
  private:
-  static std::thread spawn_helper(Generator);
-  void gen_approx(bool);
+  void generate_initial_layers();
+  CALC get_valid_calc_elems(const CALC&, uint8_t) const;
+  static std::thread spawn_helper(Generator, CALC);
+  void gen_approx_inline();
 };
 
 }  // namespace atn

@@ -24,9 +24,9 @@ double factorial(int);
 
 predicate all(const std::vector<predicate>&);
 
-std::vector<CALC_ELEM> filter(const std::vector<CALC_ELEM>, predicate);
+CALC filter(const CALC&, predicate);
 
-std::vector<std::vector<CALC_ELEM>> split_vec(const std::vector<CALC_ELEM>&, uint8_t);
+std::vector<CALC> split_calc(const CALC&, uint8_t);
 
 }  // namespace atn
 

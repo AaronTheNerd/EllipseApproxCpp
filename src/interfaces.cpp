@@ -4,11 +4,32 @@
 #include "interfaces.h"
 #include <cmath>
 #include <fstream>
+#include <sstream>
 #include <iostream>
 #include <iomanip>
 #include "utils.h"
 
-#define FILEOUT "./output_TEST.txt"
+#define FILEOUT "./output.txt"
+
+void atn::interface::generation_started() {
+  std::fstream fileout(FILEOUT, std::ios::app);
+  if (!fileout.is_open()) {
+    throw atn::utils::FileNotFound();
+  }
+  fileout << "# NEW GENERATION HAS BEGUN" << std::endl;
+  fileout.close();
+}
+
+void atn::interface::formula_created(atn::Calculator calc, std::thread::id thread_id) {
+  std::stringstream ss;
+  ss << "./all-" << thread_id << ".txt";
+  std::fstream fileout(ss.str(), std::ios::app);
+  if (!fileout.is_open()) {
+    throw atn::utils::FileNotFound();
+  }
+  fileout << calc.to_str() << std::endl;
+  fileout.close();
+}
 
 void atn::interface::submitted(atn::Calculator calc, double test_result,
                                uint64_t submit_count) {

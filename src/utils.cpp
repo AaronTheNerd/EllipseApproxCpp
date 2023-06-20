@@ -41,15 +41,15 @@ atn::utils::predicate atn::utils::all(const std::vector<atn::utils::predicate>& 
   };
 }
 
-std::vector<CALC_ELEM> atn::utils::filter(
-    const std::vector<CALC_ELEM> elements, atn::utils::predicate pred) {
-  std::vector<CALC_ELEM> out;
+CALC atn::utils::filter(
+    const CALC& elements, atn::utils::predicate pred) {
+  CALC out;
   std::copy_if(elements.begin(), elements.end(), std::back_inserter(out), pred);
   return out;
 }
 
-std::vector<std::vector<CALC_ELEM>> atn::utils::split_vec(const std::vector<CALC_ELEM>& vec, uint8_t n) {
-  std::vector<std::vector<CALC_ELEM>> out_vec;
+std::vector<CALC> atn::utils::split_calc(const CALC& vec, uint8_t n) {
+  std::vector<CALC> out_vec;
   size_t length = vec.size() / n;
   size_t remain = vec.size() % n;
   size_t begin = 0;

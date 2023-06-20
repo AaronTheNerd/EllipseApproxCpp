@@ -7,12 +7,18 @@
 #include <stack>
 #include <stdexcept>
 
+atn::Calculator::Calculator(CALC calc, uint8_t max_added): calc(calc), original_size(this->calc.size()), max_added(max_added) {
+  this->calc.append(this->max_added, CALC_INVALID);
+}
+
 int8_t atn::Calculator::validate() const {
   int8_t result = 0;
-  for (auto it = this->calc.begin(); it != this->calc.end(); ++it) {
-      result += (1 - CALC_ARGS(*it));
+  for (uint8_t i = 0; i < this->calc.size(); ++i) {
+    CALC_ELEM elem = this->calc[i];
+    if (elem == CALC_INVALID) break;
+    result += (1 - CALC_ARGS(elem));
     if (result < 1) {
-      throw atn::CalculatorError("Stack ran out of numbers");
+      throw atn::OperatorError(i);
     }
   }
   return result;
@@ -21,11 +27,12 @@ int8_t atn::Calculator::validate() const {
 double atn::Calculator::calculate(const Ellipse& ellipse) const {
   std::stack<double> num_stack;
   double a, b, result;
-  int index = 0;
-  for (auto it = this->calc.begin(); it != this->calc.end(); ++it, ++index) {
-    switch (*it & CALC_TYPE_MASK) {
+  for (uint8_t index = 0; index < this->calc.size(); ++index) {
+    CALC_ELEM elem = this->calc[index];
+    if (elem == CALC_INVALID) break;
+    switch (elem & CALC_TYPE_MASK) {
       case CALC_CONST:
-        switch (*it) {
+        switch (elem) {
           case CALC_1:
             result = 1.0;
             break;
@@ -80,7 +87,7 @@ double atn::Calculator::calculate(const Ellipse& ellipse) const {
         a = num_stack.top();
         num_stack.pop();
         try {
-          switch (*it) {
+          switch (elem) {
             case CALC_SQRT:
               result = sqrt(a);
               break;
@@ -101,7 +108,7 @@ double atn::Calculator::calculate(const Ellipse& ellipse) const {
         b = num_stack.top();
         num_stack.pop();
         try {
-          switch (*it) {
+          switch (elem) {
             case CALC_ADD:
               result = a + b;
               break;
@@ -122,8 +129,6 @@ double atn::Calculator::calculate(const Ellipse& ellipse) const {
           throw atn::OperatorError(index);
         }
         break;
-      default:
-        throw atn::CalculatorError("Invalid symbol found in stack");
     }
     if (std::isnan(result)) {
       throw atn::OperatorError(index);
@@ -138,9 +143,11 @@ double atn::Calculator::calculate(const Ellipse& ellipse) const {
 std::string atn::Calculator::to_str() const {
   std::stringstream ss;
   ss << "Calculator([";
-  for (auto it = this->calc.begin(); it != this->calc.end(); ++it) {
-    if (it != this->calc.begin()) ss << ", ";
-    ss << atn::repr(*it);
+  for (uint8_t index = 0; index < this->calc.size(); ++index) {
+    CALC_ELEM elem = this->calc[index];
+    if (elem == CALC_INVALID) break;
+    if (index != 0) ss << ", ";
+    ss << atn::repr(elem);
   }
   ss << "])";
   return ss.str();
@@ -210,34 +217,9 @@ std::string atn::repr(CALC_ELEM x) {
   }
 }
 
-std::vector<CALC_ELEM> atn::get_possible_elems() {
-  std::vector<CALC_ELEM> result{
-    CALC_ADD,
-    CALC_SUB,
-    CALC_MUL,
-    CALC_DIV,
-    CALC_EXP,
-    CALC_SQRT,
-    CALC_NEG,
-    CALC_INV,
-    CALC_PI,
-    CALC_A,
-    CALC_B,
-    /*
-    CALC_C,
-    CALC_E,
-    */
-    CALC_H,
-    CALC_1,
-    CALC_2,
-    CALC_3,
-    CALC_4,
-    CALC_5,
-    CALC_6,
-    CALC_7,
-    CALC_8,
-    CALC_9,
-    CALC_10
-  };
-  return result;
+CALC atn::get_possible_elems() {
+  return std::string() + CALC_ADD + CALC_SUB + CALC_MUL + CALC_DIV + CALC_EXP +
+      CALC_SQRT + CALC_NEG + CALC_INV +
+      CALC_PI + CALC_A + CALC_B + CALC_C + CALC_E + CALC_H +
+      CALC_1 + CALC_2 + CALC_3 + CALC_4 + CALC_5 + CALC_6 + CALC_7 + CALC_8 + CALC_9 + CALC_10;
 }

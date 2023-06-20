@@ -68,8 +68,6 @@ double atn::test_approx(const atn::Calculator& calc, const atn::TestData& data,
     e._a = std::get<0>(*it);
     e._b = std::get<1>(*it);
     calc_perimeter = calc.calculate(e);
-    if (calc_perimeter < 0 || std::isnan(calc_perimeter))
-      throw atn::CalculatorError("Unknown error occurred");
     result += 100.0 * std::abs(calc_perimeter - std::get<2>(*it));
     if (max_value < result) return max_value;
   }
