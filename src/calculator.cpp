@@ -28,7 +28,7 @@ int8_t atn::Calculator::validate() const {
 
 double atn::Calculator::calculate(const Ellipse& ellipse) const {
   std::stack<double> num_stack;
-  double a, b, result;
+  double a, b, result = NAN;
   for (uint8_t index = 0; index < this->calc.size(); ++index) {
     CALC_ELEM elem = this->calc[index];
     if (elem == CALC_INVALID) break;
@@ -216,6 +216,8 @@ std::string atn::repr(CALC_ELEM x) {
       return "9";
     case CALC_10:
       return "10";
+    default:
+      return "";
   }
 }
 

@@ -108,7 +108,7 @@ CALC atn::Generator::get_valid_calc_elems(const CALC& all_elems,
 
   // If the number stack elements left to have is equal to the number of binary
   // operators needed to complete the formula, filter non binary operators
-  if (this->layers.size() - layer_index == validation - 1) {
+  if (this->layers.size() - layer_index == validation - 1u) {
     filters.push_back([](CALC_ELEM x) { return CALC_ARGS(x) > 1; });
   }
   return atn::utils::filter(all_elems, atn::utils::all(filters));
@@ -188,7 +188,7 @@ void atn::Generator::gen_approx_inline() {
     }
 
     // Prepare to expand formula if possible
-    if (layer_index + 1 < this->layers.size()) {
+    if (layer_index + 1u < this->layers.size()) {
       layer_index++;
       // Apply filters to next layer
       this->layers[layer_index].filtered_elems = this->get_valid_calc_elems(
