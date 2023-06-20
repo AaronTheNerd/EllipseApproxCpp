@@ -12,7 +12,6 @@
 #define THREAD_COUNT 4
 
 std::mutex m;
-CALC initial_valid_elems;
 uint64_t tested_count = 0, submitted_count = 0, error_count = 0;
 double curr_best = 500.0;
 
@@ -62,10 +61,9 @@ atn::Generator::Generator(uint64_t seed, atn::Calculator calc)
 void atn::Generator::run() {
   std::cout << "- Generation running" << std::endl;
   if (THREAD_COUNT > 1) {
-    initial_valid_elems = this->layers[0].filtered_elems;
     std::vector<std::thread> threads;
     std::vector<atn::Generator*> gens;
-    auto valid_elems = atn::utils::split_calc(initial_valid_elems, 4);
+    auto valid_elems = atn::utils::split_calc(this->layers[0].filtered_elems, 4);
     std::cout << "- Spawning " << THREAD_COUNT << " threads" << std::endl;
     for (uint8_t i = 0; i < THREAD_COUNT; ++i) {
       atn::Generator* gen = new Generator(*this);
@@ -88,6 +86,8 @@ void atn::Generator::generate_initial_layers() {
     std::shuffle(this->all_calc_elems.begin(), this->all_calc_elems.end(), this->rng);
     this->layers.push_back(atn::LayerState{0, this->all_calc_elems, this->all_calc_elems});
   }
+  // Filter the first layer
+  this->layers[0].filtered_elems = this->get_valid_calc_elems(this->layers[0].all_elems, 0);
 }
 
 CALC atn::Generator::get_valid_calc_elems(const CALC& all_elems, uint8_t layer_index) const {
