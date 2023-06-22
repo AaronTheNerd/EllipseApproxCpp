@@ -27,13 +27,3 @@ double atn::Ellipse::h() const {
   return pow((this->_a - this->_b) / (this->_a + this->_b), 2);
 }
 
-double atn::Ellipse::circumference(uint8_t precision) const {
-  double result = 1.0;
-  for (uint8_t n = 1; n <= precision; ++n) {
-    result += pow(atn::utils::dfact(2 * n - 1) /
-                      (pow(2, n) * atn::utils::factorial(n)),
-                  2) *
-              pow(this->h(), n) / pow(2 * n - 1, 2);
-  }
-  return result * M_PI * (this->_a + this->_b);
-}

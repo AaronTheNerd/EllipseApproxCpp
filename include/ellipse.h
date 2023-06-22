@@ -16,7 +16,6 @@ struct Ellipse {
   double c() const;
   double e() const;
   double h() const;
-  double circumference(uint8_t) const;
 };
 
 }  // namespace atn
