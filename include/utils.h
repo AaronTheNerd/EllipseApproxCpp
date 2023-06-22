@@ -20,14 +20,6 @@ typedef std::function<bool(CALC_ELEM)> predicate;
 
 int random_seed();
 
-double dfact(int);
-
-double factorial(int);
-
-predicate all(const std::vector<predicate>&);
-
-CALC filter(const CALC&, predicate);
-
 std::vector<CALC> split_calc(const CALC&, uint8_t);
 
 }  // namespace atn::utils

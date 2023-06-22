@@ -12,41 +12,6 @@ const char* atn::utils::FileNotFound::what() const throw() {
 
 int atn::utils::random_seed() { return time(NULL); }
 
-double atn::utils::dfact(int x) {
-  double result = 1.0;
-  for (int i = x; i >= 1; i -= 2) {
-    result *= i;
-  }
-  return result;
-}
-
-double atn::utils::factorial(int x) {
-  if (x < 2) return 1.0 * x;
-  double result = 1.0;
-  for (int i = 1; i <= x; ++i) {
-    result *= i;
-  }
-  return result;
-}
-
-atn::utils::predicate atn::utils::all(
-    const std::vector<atn::utils::predicate>& predicates) {
-  return [predicates](CALC_ELEM x) {
-    bool result;
-    for (auto it = predicates.begin(); it != predicates.end(); ++it) {
-      result = (*it)(x);
-      if (!result) return false;
-    }
-    return true;
-  };
-}
-
-CALC atn::utils::filter(const CALC& elements, atn::utils::predicate pred) {
-  CALC out;
-  std::copy_if(elements.begin(), elements.end(), std::back_inserter(out), pred);
-  return out;
-}
-
 std::vector<CALC> atn::utils::split_calc(const CALC& vec, uint8_t n) {
   std::vector<CALC> out_vec;
   size_t length = vec.size() / n;
