@@ -10,6 +10,7 @@ INC_H := $(wildcard $(INC_DIR)/*.h)
 INC_O := $(patsubst $(INC_DIR)/%.h,$(BLD_DIR)/%.o, $(INC_H))
 
 TEST_DIR := test
+TEST_HPP := $(wildcard $(TEST_DIR)/*.hpp)
 
 # Build Flags
 CXX := g++
@@ -34,7 +35,7 @@ $(BLD_DIR)/%.o: $(SRC_DIR)/%.cpp $(INC_DIR)/%.h
 test.exe: $(INC_O) $(BLD_DIR)/test.o
 	$(CXX) $(LXXFLAGS) -o $@ $^ $(GTEST)
 
-$(BLD_DIR)/test.o: $(TEST_DIR)/main.cpp
+$(BLD_DIR)/test.o: $(TEST_DIR)/main.cpp $(TEST_HPP)
 	$(CXX) $(CXXFLAGS) $(TEST_INC) -c $< -o $@
 
 clean:
