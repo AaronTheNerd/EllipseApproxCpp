@@ -35,7 +35,7 @@ struct Generator {
 
  private:
   void generate_initial_layers();
-  CALC get_valid_calc_elems(const CALC&, uint8_t) const;
+  CALC get_valid_calc_elems(const CALC&, uint8_t, uint8_t) const;
   static std::thread spawn_helper(Generator, CALC);
   void gen_approx_inline();
 };

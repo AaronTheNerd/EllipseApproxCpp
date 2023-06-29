@@ -5,7 +5,7 @@
 
 #include <math.h>  // isnan
 
-#include <algorithm>  // std::shuffle
+#include <algorithm>  // std::shuffle, std::copy_if
 #include <iostream>   // std::cout, std::endl
 #include <mutex>      // std::mutex, std::lock_guard
 
@@ -16,7 +16,7 @@
 
 std::mutex m;
 uint64_t tested_count = 0, submitted_count = 0, error_count = 0;
-double curr_best = 10000.0;
+double curr_best = 10000000.0;
 
 void register_formula(atn::Calculator calc, std::thread::id id) {
   std::lock_guard<std::mutex> guard(m);
@@ -94,24 +94,26 @@ void atn::Generator::generate_initial_layers() {
         atn::LayerState{0, this->all_calc_elems, this->all_calc_elems});
   }
   // Filter the first layer
-  this->layers[0].filtered_elems =
-      this->get_valid_calc_elems(this->layers[0].all_elems, 0);
+  this->layers[0].filtered_elems = this->get_valid_calc_elems(
+      this->layers[0].all_elems, 0, this->calc.validate());
 }
 
 CALC atn::Generator::get_valid_calc_elems(const CALC& all_elems,
-                                          uint8_t layer_index) const {
-  std::vector<atn::utils::predicate> filters;
-  uint8_t validation = this->calc.validate();
-  // Filter any operator which requires too many arguments
-  filters.push_back(
-      [validation](CALC_ELEM x) { return CALC_ARGS(x) <= validation; });
-
-  // If the number stack elements left to have is equal to the number of binary
-  // operators needed to complete the formula, filter non binary operators
-  if (this->layers.size() - layer_index == validation - 1u) {
-    filters.push_back([](CALC_ELEM x) { return CALC_ARGS(x) > 1; });
-  }
-  return atn::utils::filter(all_elems, atn::utils::all(filters));
+                                          uint8_t layer_index,
+                                          uint8_t validation) const {
+  CALC filtered_elems = "";
+  bool only_use_binary = this->layers.size() - layer_index == validation - 1u;
+  bool only_use_unary =
+      layer_index + 1u == this->layers.size() && validation == 1u;
+  std::copy_if(all_elems.begin(), all_elems.end(),
+               std::back_inserter(filtered_elems),
+               [validation, only_use_binary, only_use_unary](CALC_ELEM elem) {
+                 if (validation < CALC_ARGS(elem)) return false;
+                 if (only_use_binary && CALC_ARGS(elem) < 2) return false;
+                 if (only_use_unary && CALC_ARGS(elem) != 1) return false;
+                 return true;
+               });
+  return filtered_elems;
 }
 
 std::thread atn::Generator::spawn_helper(atn::Generator gen, CALC elems) {
@@ -192,7 +194,7 @@ void atn::Generator::gen_approx_inline() {
       layer_index++;
       // Apply filters to next layer
       this->layers[layer_index].filtered_elems = this->get_valid_calc_elems(
-          this->layers[layer_index].all_elems, layer_index);
+          this->layers[layer_index].all_elems, layer_index, validation);
       // Reset index in next layer
       this->layers[layer_index].curr_index = 0;
     } else {
