@@ -17,12 +17,19 @@
 namespace atn {
 
 #ifndef NVIDIA_GPU
-using Tuple = std::tuple<double, double, double>;
-using TestData = std::vector<Tuple>;
+#define TUPLE_T std::tuple
+#define GET std::get
+#define MAKE_TUPLE std::make_tuple
+#define VECTOR_T std::vector
 #else
-using Tuple = thrust::tuple<double, double, double>;
-using TestData = thrust::host_vector<Tuple>;
+#define TUPLE_T thrust::tuple
+#define GET thrust::get
+#define MAKE_TUPLE thrust::make_tuple
+#define VECTOR_T thrust::host_vector
 #endif
+
+using Tuple = TUPLE_T<double, double, double>;
+using TestData = VECTOR_T<Tuple>;
 
 TestData read_test_file(const char*);
 

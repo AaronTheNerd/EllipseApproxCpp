@@ -31,13 +31,7 @@ atn::TestData atn::read_test_file(const char* filename) {
     while (std::getline(ss, word, ',')) {
       parsed_line.emplace_back(std::stod(word));
     }
-#ifndef NVIDIA_GPU
-    data.push_back(
-        std::make_tuple(parsed_line[0], parsed_line[1], parsed_line[2]));
-#else
-    data.push_back(
-        thrust::make_tuple(parsed_line[0], parsed_line[1], parsed_line[2]));
-#endif
+    data.push_back(MAKE_TUPLE(parsed_line[0], parsed_line[1], parsed_line[2]));
   }
   file.close();
   return data;
@@ -50,12 +44,12 @@ struct atn::test_calc_functor {
   __host__ __device__ double operator()(const atn::Tuple& x) const {
     Ellipse e;
     double calc_perimeter;
-    e._a = thrust::get<0>(*it);
-    e._b = thrust::get<1>(*it);
+    e._a = GET<0>(*it);
+    e._b = GET<1>(*it);
     calc_perimeter = calc.calculate(e);
     if (calc_perimeter < 0 || std::isnan(calc_perimeter))
       throw atn::CalculatorError("Unknown error occurred");
-    return 100.0 * thrust::abs(calc_perimeter - thrust::get<2>(*it));
+    return 100.0 * thrust::abs(calc_perimeter - GET<2>(*it));
   }
 };
 #endif
@@ -67,10 +61,10 @@ double atn::test_approx(const atn::Calculator& calc, const atn::TestData& data,
   double calc_perimeter;
   Ellipse e;
   for (auto it = data.begin(); it != data.end(); ++it) {
-    e._a = std::get<0>(*it);
-    e._b = std::get<1>(*it);
+    e._a = GET<0>(*it);
+    e._b = GET<1>(*it);
     calc_perimeter = calc.calculate(e);
-    result += 100.0 * std::abs(calc_perimeter - std::get<2>(*it));
+    result += 100.0 * std::abs(calc_perimeter - GET<2>(*it));
     if (max_value < result) return max_value;
   }
 #else
@@ -79,7 +73,6 @@ double atn::test_approx(const atn::Calculator& calc, const atn::TestData& data,
                                     atn::test_calc_functor(calc), 0.0,
                                     thrust::plus<double>);
 #endif
-  if (result < 0) return max_value;
   return result;
 }
 
@@ -89,13 +82,7 @@ void atn::print(atn::TestData data) {
   std::cout << std::setprecision(20);
   for (auto it = data.begin(); it != data.end(); ++it) {
     if (it != data.begin()) std::cout << "," << std::endl;
-#ifndef NVIDIA_GPU
-    std::cout << "  (" << std::get<0>(*it) << ", " << std::get<1>(*it) << ", "
-              << std::get<2>(*it) << ")";
-#else
-    std::cout << "  (" << thrust::get<0>(*it) << ", " << thrust::get<1>(*it)
-              << ", " << thrust::get<2>(*it) << ")";
-#endif
+    std::cout << "  (" << GET<0>(*it) << ", " << GET<1>(*it) << ", " << GET<2>(*it) << ")";
   }
   std::cout << "]" << std::endl;
 }
