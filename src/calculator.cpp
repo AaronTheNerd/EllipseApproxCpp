@@ -32,6 +32,7 @@ double atn::Calculator::calculate(const Ellipse& ellipse) const {
   for (uint8_t index = 0; index < this->calc.size(); ++index) {
     CALC_ELEM elem = this->calc[index];
     if (elem == CALC_INVALID) break;
+
     switch (elem & CALC_TYPE_MASK) {
       case CALC_CONST:
         switch (elem) {
@@ -68,6 +69,11 @@ double atn::Calculator::calculate(const Ellipse& ellipse) const {
           case CALC_PI:
             result = M_PI;
             break;
+        }
+        break;
+
+      case CALC_PROPERTY:
+        switch (elem) {
           case CALC_A:
             result = ellipse.a();
             break;
@@ -85,6 +91,7 @@ double atn::Calculator::calculate(const Ellipse& ellipse) const {
             break;
         }
         break;
+
       case CALC_UNARY:
         a = num_stack.top();
         num_stack.pop();
@@ -104,6 +111,7 @@ double atn::Calculator::calculate(const Ellipse& ellipse) const {
           throw atn::OperatorError(index);
         }
         break;
+        
       case CALC_BINARY:
         a = num_stack.top();
         num_stack.pop();
@@ -223,7 +231,7 @@ std::string atn::repr(CALC_ELEM x) {
 
 CALC atn::get_possible_elems() {
   return std::string() + CALC_ADD + CALC_SUB + CALC_MUL + CALC_DIV + CALC_EXP +
-         CALC_SQRT + CALC_NEG + CALC_INV + CALC_PI + CALC_A + CALC_B + CALC_C +
-         CALC_E + CALC_H + CALC_1 + CALC_2 + CALC_3 + CALC_4 + CALC_5 + CALC_6 +
+         CALC_SQRT + CALC_NEG + CALC_INV + CALC_PI + CALC_A + CALC_B + /*CALC_C +
+         CALC_E +*/ CALC_H + CALC_1 + CALC_2 + CALC_3 + CALC_4 + CALC_5 + CALC_6 +
          CALC_7 + CALC_8 + CALC_9 + CALC_10;
 }
