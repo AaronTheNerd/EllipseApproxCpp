@@ -18,6 +18,8 @@ void submitted(atn::Calculator, double, uint64_t);
 
 void tested(uint64_t, uint64_t, uint64_t, double);
 
+void generation_finished(uint64_t);
+
 }  // namespace atn::interface
 
 #endif  // _INCLUDE_INTERFACES_H_

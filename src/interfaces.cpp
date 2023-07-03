@@ -53,3 +53,12 @@ void atn::interface::tested(uint64_t test_count, uint64_t submit_count,
             << test_rate << " approx/s, " << error_rate
             << "% error                    \r";
 }
+
+void atn::interface::generation_finished(uint64_t test_count) {
+  std::fstream fileout(FILEOUT, std::ios::app);
+  if (!fileout.is_open()) {
+    throw atn::utils::FileNotFound();
+  }
+  fileout << "# GENERATION CHECKED: " << test_count << " FORMULAS"<< std::endl;
+  fileout.close();
+}
