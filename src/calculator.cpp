@@ -33,7 +33,7 @@ double atn::Calculator::calculate(const Ellipse& ellipse) const {
     CALC_ELEM elem = this->calc[index];
     if (elem == CALC_INVALID) break;
 
-    switch (elem & CALC_TYPE_MASK) {
+    switch (CALC_TYPE(elem)) {
       case CALC_CONST:
         switch (elem) {
           case CALC_1:
@@ -111,7 +111,7 @@ double atn::Calculator::calculate(const Ellipse& ellipse) const {
           throw atn::OperatorError(index);
         }
         break;
-        
+
       case CALC_BINARY:
         a = num_stack.top();
         num_stack.pop();

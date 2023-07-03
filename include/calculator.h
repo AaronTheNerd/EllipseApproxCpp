@@ -50,6 +50,7 @@
 #define CALC_INVALID ((char)0b00000011)
 
 #define CALC_ARGS(x) (x & CALC_VALIDATION_MASK)
+#define CALC_TYPE(x) (x & CALC_TYPE_MASK)
 
 namespace atn {
 
