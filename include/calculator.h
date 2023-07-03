@@ -78,8 +78,6 @@ struct OperatorError : public std::exception {
 
 std::string repr(CALC_ELEM);
 
-CALC get_possible_elems();
-
 }  // namespace atn
 
 #endif  // _INCLUDE_CALCULATOR_H_

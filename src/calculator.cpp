@@ -228,10 +228,3 @@ std::string atn::repr(CALC_ELEM x) {
       return "";
   }
 }
-
-CALC atn::get_possible_elems() {
-  return std::string() + CALC_ADD + CALC_SUB + CALC_MUL + CALC_DIV + CALC_EXP +
-         CALC_SQRT + CALC_NEG + CALC_INV + CALC_PI + CALC_A + CALC_B + /*CALC_C +
-         CALC_E +*/ CALC_H + CALC_1 + CALC_2 + CALC_3 + CALC_4 + CALC_5 + CALC_6 +
-         CALC_7 + CALC_8 + CALC_9 + CALC_10;
-}
