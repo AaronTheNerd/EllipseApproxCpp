@@ -18,7 +18,7 @@ struct FileNotFound : public std::exception {
 
 typedef std::function<bool(CALC_ELEM)> predicate;
 
-int random_seed();
+uint64_t random_seed();
 
 std::vector<CALC> split_calc(const CALC&, uint8_t);
 

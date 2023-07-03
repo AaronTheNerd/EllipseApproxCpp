@@ -10,7 +10,7 @@ const char* atn::utils::FileNotFound::what() const throw() {
   return "File failed to be open";
 }
 
-int atn::utils::random_seed() { return time(NULL); }
+uint64_t atn::utils::random_seed() { return time(NULL); }
 
 std::vector<CALC> atn::utils::split_calc(const CALC& vec, uint8_t n) {
   std::vector<CALC> out_vec;
