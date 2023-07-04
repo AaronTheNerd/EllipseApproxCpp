@@ -12,6 +12,9 @@ INC_O := $(patsubst $(INC_DIR)/%.h,$(BLD_DIR)/%.o, $(INC_H))
 TEST_DIR := test
 TEST_HPP := $(wildcard $(TEST_DIR)/*.hpp)
 
+PERF_DIR := perf
+PERF_HPP := $(wildcard $(PERF_DIR)/*.hpp)
+
 # Build Flags
 CXX := g++
 LXXFLAGS := -std=c++1z -I $(INC_DIR) -pthread
@@ -38,5 +41,11 @@ test.exe: $(INC_O) $(BLD_DIR)/test.o
 $(BLD_DIR)/test.o: $(TEST_DIR)/main.cpp $(TEST_HPP)
 	$(CXX) $(CXXFLAGS) $(TEST_INC) -c $< -o $@
 
+perf.exe: $(INC_O) $(BLD_DIR)/perf.o
+	$(CXX) $(LXXFLAGS) -o $@ $^ $(GTEST)
+
+$(BLD_DIR)/perf.o: $(PERF_DIR)/main.cpp $(PERF_HPP)
+	$(CXX) $(CXXFLAGS) $(TEST_INC) -c $< -o $@
+
 clean:
-	$(RM) $(BLD_DIR)/* test.exe main
+	$(RM) $(BLD_DIR)/* $(TARGET) test.exe perf.exe

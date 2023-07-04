@@ -3,3 +3,4 @@ build/*
 main
 output*
 test.exe
+perf_comp/
