@@ -13,12 +13,20 @@
 
 #define FILEOUT "./output.txt"
 
-void atn::interface::generation_started() {
+void atn::interface::generation_started(atn::Generator gen) {
   std::fstream fileout(FILEOUT, std::ios::app);
   if (!fileout.is_open()) {
     throw atn::utils::FileNotFound();
   }
-  fileout << "# NEW GENERATION HAS BEGUN" << std::endl;
+  fileout << "# ==================================================================================================" << std::endl;
+  fileout << "# Seed: " << gen.seed << std::endl;
+  fileout << "# Threads: " << (int)gen.thread_count << std::endl;
+  fileout << "# All elems: [";
+  for (uint8_t i = 0; i < gen.all_calc_elems.size(); ++i) {
+    if (i != 0) fileout << ", ";
+    fileout << atn::repr(gen.all_calc_elems[i]);
+  }
+  fileout << "]" << std::endl;
   fileout.close();
 }
 

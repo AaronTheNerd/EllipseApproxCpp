@@ -6,11 +6,12 @@
 
 #include <thread>
 
+#include "generation.h"
 #include "calculator.h"
 
 namespace atn::interface {
 
-void generation_started();
+void generation_started(atn::Generator);
 
 void formula_created(atn::Calculator, std::thread::id);
 
