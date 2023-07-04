@@ -69,6 +69,15 @@ double atn::Calculator::calculate(const Ellipse& ellipse) const {
           case CALC_PI:
             result = M_PI;
             break;
+          case CALC_HALF:
+            result = 0.5;
+            break;
+          case CALC_THIRD:
+            result = 1.0 / 3.0;
+            break;
+          case CALC_QUARTER:
+            result = 0.25;
+            break;
         }
         break;
 
@@ -224,6 +233,12 @@ std::string atn::repr(CALC_ELEM x) {
       return "9";
     case CALC_10:
       return "10";
+    case CALC_HALF:
+      return "0.5";
+    case CALC_THIRD:
+      return "1/3";
+    case CALC_QUARTER:
+      return "0.25";
     default:
       return "";
   }

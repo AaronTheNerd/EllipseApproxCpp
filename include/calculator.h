@@ -34,19 +34,26 @@
 #define CALC_8       ((char)0b01000000)
 #define CALC_9       ((char)0b01001000)
 #define CALC_10      ((char)0b01010000)
-#define CALC_A       ((char)0b01011100)
-#define CALC_B       ((char)0b01100100)
-#define CALC_C       ((char)0b01101100)
-#define CALC_E       ((char)0b01110100)
-#define CALC_H       ((char)0b01111100)
+#define CALC_HALF    ((char)0b01011000)
+#define CALC_THIRD   ((char)0b01100000)
+#define CALC_QUARTER ((char)0b01101000)
+
+#define CALC_A       ((char)0b00000100)
+#define CALC_B       ((char)0b00001100)
+#define CALC_C       ((char)0b00010100)
+#define CALC_E       ((char)0b00011100)
+#define CALC_H       ((char)0b00100100)
+
 #define CALC_SQRT    ((char)0b00000001)
 #define CALC_NEG     ((char)0b00001001)
 #define CALC_INV     ((char)0b00010001)
+
 #define CALC_ADD     ((char)0b00000010)
 #define CALC_SUB     ((char)0b00001010)
 #define CALC_MUL     ((char)0b00010010)
 #define CALC_DIV     ((char)0b00011010)
 #define CALC_EXP     ((char)0b00100010)
+
 #define CALC_INVALID ((char)0b00000011)
 
 #define CALC_ARGS(x) (x & CALC_VALIDATION_MASK)

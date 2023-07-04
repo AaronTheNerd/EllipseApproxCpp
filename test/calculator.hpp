@@ -29,6 +29,9 @@ std::unordered_map<CALC_ELEM, CalcExpected> tests{
     {CALC_8, {CALC_CONST, 0, "8"}},
     {CALC_9, {CALC_CONST, 0, "9"}},
     {CALC_10, {CALC_CONST, 0, "10"}},
+    {CALC_HALF, {CALC_CONST, 0, "0.5"}},
+    {CALC_THIRD, {CALC_CONST, 0, "1/3"}},
+    {CALC_QUARTER, {CALC_CONST, 0, "0.25"}},
     {CALC_A, {CALC_PROPERTY, 0, "EllipseProperties.a"}},
     {CALC_B, {CALC_PROPERTY, 0, "EllipseProperties.b"}},
     {CALC_C, {CALC_PROPERTY, 0, "EllipseProperties.c"}},
@@ -45,7 +48,10 @@ std::unordered_map<CALC_ELEM, CalcExpected> tests{
     {CALC_INVALID, {CALC_INVALID, 3, ""}}};
 
 TEST(CalculatorSuite, TestUniqueElements) {
-  CALC all_elems = atn::get_possible_elems();
+  std::vector<CALC_ELEM> all_elems;
+  for (auto it = tests.begin(); it != tests.end(); ++it) {
+    all_elems.push_back(it->first);
+  }
   for (uint8_t i = 0; i < all_elems.size() - 1; ++i) {
     CALC_ELEM elem1 = all_elems[i];
     for (uint8_t j = i + 1; j < all_elems.size(); ++j) {
