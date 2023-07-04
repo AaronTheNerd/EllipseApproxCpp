@@ -42,10 +42,8 @@ struct atn::test_calc_functor {
   const atn::Calculator& c;
   test_calc_functor(atn::Calculator _c) : c(_c) {}
   __host__ __device__ double operator()(const atn::Tuple& x) const {
-    Ellipse e;
+    Ellipse e{GET<0>(*it), GET<1>(*it)};
     double calc_perimeter;
-    e._a = GET<0>(*it);
-    e._b = GET<1>(*it);
     calc_perimeter = calc.calculate(e);
     if (calc_perimeter < 0 || std::isnan(calc_perimeter))
       throw atn::CalculatorError("Unknown error occurred");
@@ -59,10 +57,8 @@ double atn::test_approx(const atn::Calculator& calc, const atn::TestData& data,
   double result = 0.0;
 #ifndef NVIDIA_GPU
   double calc_perimeter;
-  Ellipse e;
   for (auto it = data.begin(); it != data.end(); ++it) {
-    e._a = GET<0>(*it);
-    e._b = GET<1>(*it);
+    Ellipse e{GET<0>(*it), GET<1>(*it)};
     calc_perimeter = calc.calculate(e);
     result += 100.0 * std::abs(calc_perimeter - GET<2>(*it));
     if (max_value < result) return max_value;
@@ -82,7 +78,8 @@ void atn::print(atn::TestData data) {
   std::cout << std::setprecision(20);
   for (auto it = data.begin(); it != data.end(); ++it) {
     if (it != data.begin()) std::cout << "," << std::endl;
-    std::cout << "  (" << GET<0>(*it) << ", " << GET<1>(*it) << ", " << GET<2>(*it) << ")";
+    std::cout << "  (" << GET<0>(*it) << ", " << GET<1>(*it) << ", "
+              << GET<2>(*it) << ")";
   }
   std::cout << "]" << std::endl;
 }

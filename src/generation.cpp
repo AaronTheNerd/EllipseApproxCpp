@@ -43,7 +43,7 @@ void register_test(
 void register_submitted_test(double test_result, atn::Calculator calc,
                              double epsilon) {
   std::lock_guard<std::mutex> guard(m);
-  if (!isnan(test_result) && test_result + epsilon < curr_best) {
+  if (!isnan(test_result) && ((test_result + epsilon) < curr_best)) {
     curr_best = test_result;
     submitted_count++;
     atn::interface::submitted(calc, test_result, submitted_count);
@@ -133,14 +133,14 @@ void atn::Generator::generate_shortest_constants() {
   for (uint8_t i = 0; i < constants.size(); ++i) {
     CALC_ELEM elem = constants[i];
     calc.calc = std::string() + elem;
-    value = calc.calculate(atn::Ellipse{});
+    value = calc.calculate(atn::Ellipse{0., 0.});
     shortest.insert(std::make_pair(value, calc.calc));
   }
   // Calculate with all constants within a unary operator
   for (uint8_t i = 0; i < constants.size(); ++i) {
     for (uint8_t j = 0; j < unary_ops.size(); ++j) {
       calc.calc = std::string() + constants[i] + unary_ops[j];
-      value = calc.calculate(atn::Ellipse{});
+      value = calc.calculate(atn::Ellipse{0., 0.});
       if (shortest.find(value) == shortest.end()) {
         shortest.insert(std::make_pair(value, calc.calc));
       }
@@ -151,7 +151,7 @@ void atn::Generator::generate_shortest_constants() {
     for (uint8_t j = 0; j < constants.size(); ++j) {
       for (uint8_t k = 0; k < binary_ops.size(); ++k) {
         calc.calc = std::string() + constants[i] + constants[j] + binary_ops[k];
-        value = calc.calculate(atn::Ellipse{});
+        value = calc.calculate(atn::Ellipse{0., 0.});
         if (shortest.find(value) == shortest.end()) {
           shortest.insert(std::make_pair(value, calc.calc));
         }

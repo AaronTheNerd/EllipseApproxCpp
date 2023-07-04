@@ -9,8 +9,9 @@
 namespace atn {
 
 struct Ellipse {
-  double _a, _b;
+  double _a, _b, _major, _minor, _c, _e, _h;
 
+  Ellipse(double, double);
   double a() const;
   double b() const;
   double c() const;
