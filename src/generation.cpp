@@ -13,8 +13,6 @@
 #include "interfaces.h"
 #include "utils.h"
 
-#define THREAD_COUNT 4
-
 std::mutex m;
 uint64_t tested_count = 0, submitted_count = 0, error_count = 0;
 double curr_best = 1000.0;
@@ -30,9 +28,11 @@ void register_error() {
 }
 
 void register_test(
-    std::chrono::time_point<std::chrono::high_resolution_clock> start_time) {
+    std::chrono::time_point<std::chrono::high_resolution_clock> start_time,
+    bool silent) {
   std::lock_guard<std::mutex> guard(m);
   tested_count++;
+  if (silent) return;
   std::chrono::duration<double> dur =
       std::chrono::high_resolution_clock::now() - start_time;
   if (tested_count % 50000 == 0)
@@ -40,40 +40,44 @@ void register_test(
                            dur.count());
 }
 
-void register_submitted_test(double test_result, atn::Calculator calc) {
+void register_submitted_test(double test_result, atn::Calculator calc,
+                             double epsilon) {
   std::lock_guard<std::mutex> guard(m);
-  if (!isnan(test_result) && (test_result < curr_best || test_result < 100.0)) {
+  if (!isnan(test_result) && test_result + epsilon < curr_best) {
     curr_best = test_result;
     submitted_count++;
     atn::interface::submitted(calc, test_result, submitted_count);
   }
 }
 
-atn::Generator::Generator(uint64_t seed, atn::Calculator calc)
+atn::Generator::Generator(uint64_t seed, uint8_t thread_count,
+                          atn::Calculator calc, CALC all_elems, bool silent)
     : seed(seed),
       rng(seed),
       calc(calc),
-      all_calc_elems(atn::get_possible_elems()),
-      failed_due_to_error(false),
-      failed_index(-1),
+      thread_count(thread_count),
+      all_calc_elems(all_elems),
       data(atn::read_test_file("./data/test_data.csv")),
       start(std::chrono::high_resolution_clock::now()),
       layers(),
-      shortest_constants() {
-  std::cout << "- Test Data read" << std::endl;
+      shortest_constants(),
+      silent(silent) {
+  if (!this->silent) std::cout << "- Test Data read" << std::endl;
   this->generate_initial_layers();
   this->generate_shortest_constants();
 }
 
 void atn::Generator::run() {
-  std::cout << "- Generation running" << std::endl;
-  if (THREAD_COUNT > 1) {
+  if (!this->silent) std::cout << "- Generation running" << std::endl;
+  if (this->thread_count > 1) {
     std::vector<std::thread> threads;
     std::vector<atn::Generator*> gens;
     auto valid_elems =
         atn::utils::split_calc(this->layers[0].filtered_elems, 4);
-    std::cout << "- Spawning " << THREAD_COUNT << " threads" << std::endl;
-    for (uint8_t i = 0; i < THREAD_COUNT; ++i) {
+    if (!this->silent)
+      std::cout << "- Spawning " << this->thread_count << " threads"
+                << std::endl;
+    for (uint8_t i = 0; i < this->thread_count; ++i) {
       atn::Generator* gen = new Generator(*this);
       gens.push_back(gen);
       threads.push_back(atn::Generator::spawn_helper(*gen, valid_elems[i]));
@@ -176,7 +180,7 @@ CALC atn::Generator::get_valid_calc_elems(const CALC& all_elems,
       this->calc.calc.size() > last_index - 1u &&
       CALC_TYPE(this->calc.calc[last_index]) == CALC_CONST &&
       CALC_TYPE(this->calc.calc[last_index - 1]) == CALC_CONST;
-  
+
   std::copy_if(
       all_elems.begin(), all_elems.end(), std::back_inserter(filtered_elems),
       [validation, only_use_binary, only_use_unary, check_for_unary_const_expr,
@@ -191,13 +195,14 @@ CALC atn::Generator::get_valid_calc_elems(const CALC& all_elems,
         // Filter out all non-unary elements if only unary should be
         // used
         if (only_use_unary && CALC_ARGS(elem) != 1) return false;
-        
+
         // Filter out all unary operators which would result in a constant
         // expression longer than necessary
         if (check_for_unary_const_expr && CALC_ARGS(elem) == 1) {
           CALC expr(this->calc.calc, this->calc.calc.size() - 1, 1);
           expr += elem;
-          if (this->shortest_constants.find(expr) == this->shortest_constants.end()) {
+          if (this->shortest_constants.find(expr) ==
+              this->shortest_constants.end()) {
             return false;
           }
         }
@@ -207,27 +212,31 @@ CALC atn::Generator::get_valid_calc_elems(const CALC& all_elems,
         if (check_for_binary_const_expr && CALC_ARGS(elem) == 2) {
           CALC expr(this->calc.calc, this->calc.calc.size() - 2, 2);
           expr += elem;
-          if (this->shortest_constants.find(expr) == this->shortest_constants.end()) {
+          if (this->shortest_constants.find(expr) ==
+              this->shortest_constants.end()) {
             return false;
           }
         }
-        
+
         return true;
       });
   return filtered_elems;
 }
 
 std::thread atn::Generator::spawn_helper(atn::Generator gen, CALC elems) {
+  bool silent = gen.silent;
   return std::thread(
-      [elems](atn::Generator gen) {
+      [elems, silent](atn::Generator gen) {
         gen.layers[0].filtered_elems = elems;
-        std::cout << "Thread: " << std::this_thread::get_id()
-                  << " has begun                                         "
-                  << std::endl;
+        if (!silent)
+          std::cout << "Thread: " << std::this_thread::get_id()
+                    << " has begun                                         "
+                    << std::endl;
         gen.gen_approx_inline();
-        std::cout << "Thread: " << std::this_thread::get_id()
-                  << " has ended                                         "
-                  << std::endl;
+        if (!silent)
+          std::cout << "Thread: " << std::this_thread::get_id()
+                    << " has ended                                         "
+                    << std::endl;
       },
       gen);
 }
@@ -270,7 +279,7 @@ void atn::Generator::gen_approx_inline() {
     // Test calculator if appropriate
     if (validation == 1) {
       // Set lock and print testing info
-      register_test(this->start);
+      register_test(this->start, this->silent);
 
       // Try to test approximation
       try {
@@ -287,7 +296,7 @@ void atn::Generator::gen_approx_inline() {
       }
 
       // Register test result
-      register_submitted_test(test_result, this->calc);
+      register_submitted_test(test_result, this->calc, this->epsilon);
     }
 
     // Prepare to expand formula if possible

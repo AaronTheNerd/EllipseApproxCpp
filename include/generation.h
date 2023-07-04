@@ -24,15 +24,16 @@ struct Generator {
   uint64_t seed;
   std::default_random_engine rng;
   atn::Calculator calc;
+  uint8_t thread_count;
   CALC all_calc_elems;
-  bool failed_due_to_error;
-  int failed_index;
   atn::TestData data;
   std::chrono::time_point<std::chrono::high_resolution_clock> start;
   std::vector<LayerState> layers;
   std::set<CALC> shortest_constants;
+  bool silent;
+  double epsilon;
 
-  Generator(uint64_t, atn::Calculator);
+  Generator(uint64_t, uint8_t, atn::Calculator, CALC, bool);
   void run();
 
  private:
