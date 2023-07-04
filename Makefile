@@ -42,10 +42,10 @@ $(BLD_DIR)/test.o: $(TEST_DIR)/main.cpp $(TEST_HPP)
 	$(CXX) $(CXXFLAGS) $(TEST_INC) -c $< -o $@
 
 perf.exe: $(INC_O) $(BLD_DIR)/perf.o
-	$(CXX) $(LXXFLAGS) -o $@ $^ $(GTEST)
+	$(CXX) $(LXXFLAGS) -o $@ $^
 
-$(BLD_DIR)/perf.o: $(PERF_DIR)/main.cpp $(PERF_HPP)
-	$(CXX) $(CXXFLAGS) $(TEST_INC) -c $< -o $@
+$(BLD_DIR)/perf.o: $(SRC_DIR)/perf.cpp $(PERF_HPP)
+	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 clean:
 	$(RM) $(BLD_DIR)/* $(TARGET) test.exe perf.exe

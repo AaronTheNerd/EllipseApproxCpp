@@ -1,14 +1,9 @@
-#ifndef _TEST_GENERATION_HPP_
-#define _TEST_GENERATION_HPP_
-
-#include <gtest/gtest.h>
-
-#include "calculator.h"
+#include <chrono>
+#include <iostream>
 #include "generation.h"
 
-namespace atn {
-
-TEST(GeneratorSuite, PerformanceTest) {
+int main(int argc, char** argv) {
+  auto start = std::chrono::high_resolution_clock::now();
   CALC initial_calc =
       std::string() + CALC_PI + CALC_A + CALC_B + CALC_ADD + CALC_MUL;
   atn::Calculator c{initial_calc, 6};
@@ -20,8 +15,7 @@ TEST(GeneratorSuite, PerformanceTest) {
                    CALC_QUARTER;
   atn::Generator gen(0, 1, c, all_elems, true);
   gen.run();
+  auto end = std::chrono::high_resolution_clock::now();
+  auto runtime = std::chrono::duration_cast<std::chrono::duration<double>>(end - start);
+  std::cout << runtime.count() << std::endl;
 }
-
-}  // namespace atn
-
-#endif  //  _TEST_GENERATION_HPP_
