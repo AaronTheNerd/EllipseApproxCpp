@@ -112,6 +112,7 @@ void atn::Generator::generate_shortest_constants() {
   std::vector<CALC_ELEM> unary_ops;
   std::vector<CALC_ELEM> binary_ops;
   atn::Calculator calc("", 3);
+  atn::Ellipse test_ellipse{0.0, 0.0};
   double value;
   // Fill all arrays
   for (uint8_t i = 0; i < this->all_calc_elems.size(); ++i) {
@@ -133,14 +134,14 @@ void atn::Generator::generate_shortest_constants() {
   for (uint8_t i = 0; i < constants.size(); ++i) {
     CALC_ELEM elem = constants[i];
     calc.calc = std::string() + elem;
-    value = calc.calculate(atn::Ellipse{0., 0.});
+    value = calc.calculate(test_ellipse);
     shortest.insert(std::make_pair(value, calc.calc));
   }
   // Calculate with all constants within a unary operator
   for (uint8_t i = 0; i < constants.size(); ++i) {
     for (uint8_t j = 0; j < unary_ops.size(); ++j) {
       calc.calc = std::string() + constants[i] + unary_ops[j];
-      value = calc.calculate(atn::Ellipse{0., 0.});
+      value = calc.calculate(test_ellipse);
       if (shortest.find(value) == shortest.end()) {
         shortest.insert(std::make_pair(value, calc.calc));
       }
@@ -151,7 +152,7 @@ void atn::Generator::generate_shortest_constants() {
     for (uint8_t j = 0; j < constants.size(); ++j) {
       for (uint8_t k = 0; k < binary_ops.size(); ++k) {
         calc.calc = std::string() + constants[i] + constants[j] + binary_ops[k];
-        value = calc.calculate(atn::Ellipse{0., 0.});
+        value = calc.calculate(test_ellipse);
         if (shortest.find(value) == shortest.end()) {
           shortest.insert(std::make_pair(value, calc.calc));
         }
@@ -180,11 +181,13 @@ CALC atn::Generator::get_valid_calc_elems(const CALC& all_elems,
       this->calc.calc.size() > last_index - 1u &&
       CALC_TYPE(this->calc.calc[last_index]) == CALC_CONST &&
       CALC_TYPE(this->calc.calc[last_index - 1]) == CALC_CONST;
+  CALC calc = this->calc.calc;
+  std::set<CALC> shortest_constants = this->shortest_constants;
 
   std::copy_if(
       all_elems.begin(), all_elems.end(), std::back_inserter(filtered_elems),
       [validation, only_use_binary, only_use_unary, check_for_unary_const_expr,
-       check_for_binary_const_expr, this](CALC_ELEM elem) {
+       check_for_binary_const_expr, calc, shortest_constants](CALC_ELEM elem) {
         // Filter out all operators which don't have enough inputs
         if (validation < CALC_ARGS(elem)) return false;
 
@@ -199,10 +202,10 @@ CALC atn::Generator::get_valid_calc_elems(const CALC& all_elems,
         // Filter out all unary operators which would result in a constant
         // expression longer than necessary
         if (check_for_unary_const_expr && CALC_ARGS(elem) == 1) {
-          CALC expr(this->calc.calc, this->calc.calc.size() - 1, 1);
+          CALC expr(calc, calc.size() - 1, 1);
           expr += elem;
-          if (this->shortest_constants.find(expr) ==
-              this->shortest_constants.end()) {
+          if (shortest_constants.find(expr) ==
+              shortest_constants.end()) {
             return false;
           }
         }
@@ -210,10 +213,10 @@ CALC atn::Generator::get_valid_calc_elems(const CALC& all_elems,
         // Filter out all binary operators which would result in a constant
         // expression longer than necessary
         if (check_for_binary_const_expr && CALC_ARGS(elem) == 2) {
-          CALC expr(this->calc.calc, this->calc.calc.size() - 2, 2);
+          CALC expr(calc, calc.size() - 2, 2);
           expr += elem;
-          if (this->shortest_constants.find(expr) ==
-              this->shortest_constants.end()) {
+          if (shortest_constants.find(expr) ==
+              shortest_constants.end()) {
             return false;
           }
         }

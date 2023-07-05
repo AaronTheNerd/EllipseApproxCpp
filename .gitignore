@@ -5,3 +5,4 @@ output*
 test.exe
 perf_comp/
 Pipfile*
+perf.exe

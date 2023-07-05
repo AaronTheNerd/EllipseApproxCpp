@@ -95,7 +95,8 @@ TEST(CalculatorSuite, TestDistFormula) {
   atn::Calculator calc{std::string() + CALC_2 + CALC_A + CALC_EXP + CALC_2 +
                            CALC_B + CALC_EXP + CALC_ADD + CALC_SQRT,
                        0};
-  ASSERT_DOUBLE_EQ(calc.calculate(atn::Ellipse{3.0, 4.0}), 5.0);
+  atn::Ellipse ellipse{3.0, 4.0};
+  ASSERT_DOUBLE_EQ(calc.calculate(ellipse), 5.0);
 }
 
 }  // namespace atn

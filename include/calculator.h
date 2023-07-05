@@ -67,7 +67,7 @@ struct Calculator {
   uint8_t max_added;
   Calculator(CALC, uint8_t);
   int8_t validate() const;
-  double calculate(const Ellipse&) const;
+  double calculate(Ellipse&) const;
   std::string to_str() const;
 };
 

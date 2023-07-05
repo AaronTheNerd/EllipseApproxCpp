@@ -10,13 +10,14 @@ namespace atn {
 
 struct Ellipse {
   double _a, _b, _major, _minor, _c, _e, _h;
+  bool _c_init, _e_init, _h_init;
 
   Ellipse(double, double);
   double a() const;
   double b() const;
-  double c() const;
-  double e() const;
-  double h() const;
+  double c();
+  double e();
+  double h();
 };
 
 }  // namespace atn

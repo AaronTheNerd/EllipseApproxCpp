@@ -26,7 +26,7 @@ int8_t atn::Calculator::validate() const {
   return result;
 }
 
-double atn::Calculator::calculate(const Ellipse& ellipse) const {
+double atn::Calculator::calculate(Ellipse& ellipse) const {
   std::stack<double> num_stack;
   double a, b, result = NAN;
   for (uint8_t index = 0; index < this->calc.size(); ++index) {

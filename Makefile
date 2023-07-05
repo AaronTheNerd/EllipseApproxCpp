@@ -22,9 +22,11 @@ CXXFLAGS := -Wall -O3 -std=c++1z -I $(INC_DIR)
 TEST_INC := -I /usr/local/include/gtest/
 GTEST = /usr/local/lib/libgtest.a
 TARGET := main
+TEST_TARGET := test.exe
+PERF_TARGET := perf.exe
 
 # Rules
-all: $(TARGET)
+all: $(TARGET) $(TEST_TARGET) $(PERF_TARGET)
 
 $(TARGET): $(INC_O) $(BLD_DIR)/$(TARGET).o
 	$(CXX) $(LXXFLAGS) -o $@ $^
@@ -35,17 +37,17 @@ $(BLD_DIR)/$(TARGET).o: $(SRC_DIR)/$(TARGET).cpp
 $(BLD_DIR)/%.o: $(SRC_DIR)/%.cpp $(INC_DIR)/%.h
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
-test.exe: $(INC_O) $(BLD_DIR)/test.o
+$(TEST_TARGET): $(INC_O) $(BLD_DIR)/test.o
 	$(CXX) $(LXXFLAGS) -o $@ $^ $(GTEST)
 
 $(BLD_DIR)/test.o: $(TEST_DIR)/main.cpp $(TEST_HPP)
 	$(CXX) $(CXXFLAGS) $(TEST_INC) -c $< -o $@
 
-perf.exe: $(INC_O) $(BLD_DIR)/perf.o
+$(PERF_TARGET): $(INC_O) $(BLD_DIR)/perf.o
 	$(CXX) $(LXXFLAGS) -o $@ $^
 
 $(BLD_DIR)/perf.o: $(SRC_DIR)/perf.cpp $(PERF_HPP)
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 clean:
-	$(RM) $(BLD_DIR)/* $(TARGET) test.exe perf.exe
+	$(RM) $(BLD_DIR)/* $(TARGET) $(TEST_TARGET) $(PERF_TARGET)
