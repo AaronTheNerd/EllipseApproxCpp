@@ -91,7 +91,7 @@ void atn::Generator::run() {
   } else {
     this->gen_approx_inline();
   }
-  atn::interface::generation_finished(tested_count);
+  if (!this->silent) atn::interface::generation_finished(tested_count);
 }
 
 void atn::Generator::generate_initial_layers() {
@@ -181,13 +181,10 @@ CALC atn::Generator::get_valid_calc_elems(const CALC& all_elems,
       this->calc.calc.size() > last_index - 1u &&
       CALC_TYPE(this->calc.calc[last_index]) == CALC_CONST &&
       CALC_TYPE(this->calc.calc[last_index - 1]) == CALC_CONST;
-  CALC calc = this->calc.calc;
-  std::set<CALC> shortest_constants = this->shortest_constants;
-
   std::copy_if(
       all_elems.begin(), all_elems.end(), std::back_inserter(filtered_elems),
       [validation, only_use_binary, only_use_unary, check_for_unary_const_expr,
-       check_for_binary_const_expr, calc, shortest_constants](CALC_ELEM elem) {
+       check_for_binary_const_expr, this](CALC_ELEM elem) {
         // Filter out all operators which don't have enough inputs
         if (validation < CALC_ARGS(elem)) return false;
 
@@ -202,10 +199,9 @@ CALC atn::Generator::get_valid_calc_elems(const CALC& all_elems,
         // Filter out all unary operators which would result in a constant
         // expression longer than necessary
         if (check_for_unary_const_expr && CALC_ARGS(elem) == 1) {
-          CALC expr(calc, calc.size() - 1, 1);
+          CALC expr(this->calc.calc, this->calc.calc.size() - 1, 1);
           expr += elem;
-          if (shortest_constants.find(expr) ==
-              shortest_constants.end()) {
+          if (this->shortest_constants.find(expr) == this->shortest_constants.end()) {
             return false;
           }
         }
@@ -213,10 +209,9 @@ CALC atn::Generator::get_valid_calc_elems(const CALC& all_elems,
         // Filter out all binary operators which would result in a constant
         // expression longer than necessary
         if (check_for_binary_const_expr && CALC_ARGS(elem) == 2) {
-          CALC expr(calc, calc.size() - 2, 2);
+          CALC expr(this->calc.calc, this->calc.calc.size() - 2, 2);
           expr += elem;
-          if (shortest_constants.find(expr) ==
-              shortest_constants.end()) {
+          if (this->shortest_constants.find(expr) == this->shortest_constants.end()) {
             return false;
           }
         }
@@ -227,16 +222,15 @@ CALC atn::Generator::get_valid_calc_elems(const CALC& all_elems,
 }
 
 std::thread atn::Generator::spawn_helper(atn::Generator gen, CALC elems) {
-  bool silent = gen.silent;
   return std::thread(
-      [elems, silent](atn::Generator gen) {
+      [elems](atn::Generator gen) {
         gen.layers[0].filtered_elems = elems;
-        if (!silent)
+        if (!gen.silent)
           std::cout << "Thread: " << std::this_thread::get_id()
                     << " has begun                                         "
                     << std::endl;
         gen.gen_approx_inline();
-        if (!silent)
+        if (!gen.silent)
           std::cout << "Thread: " << std::this_thread::get_id()
                     << " has ended                                         "
                     << std::endl;
