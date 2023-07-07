@@ -6,8 +6,8 @@
 
 #include <chrono>
 #include <random>
-#include <thread>
 #include <set>
+#include <thread>
 
 #include "calculator.h"
 #include "test_approx.h"
@@ -26,7 +26,6 @@ struct Generator {
   atn::Calculator calc;
   uint8_t thread_count;
   CALC all_calc_elems;
-  atn::TestData data;
   std::chrono::time_point<std::chrono::high_resolution_clock> start;
   std::vector<LayerState> layers;
   std::set<CALC> shortest_constants;

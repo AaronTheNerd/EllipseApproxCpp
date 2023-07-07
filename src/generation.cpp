@@ -57,7 +57,6 @@ atn::Generator::Generator(uint64_t seed, uint8_t thread_count,
       calc(calc),
       thread_count(thread_count),
       all_calc_elems(all_elems),
-      data(atn::read_test_file("./data/test_data.csv")),
       start(std::chrono::high_resolution_clock::now()),
       layers(),
       shortest_constants(),
@@ -201,7 +200,8 @@ CALC atn::Generator::get_valid_calc_elems(const CALC& all_elems,
         if (check_for_unary_const_expr && CALC_ARGS(elem) == 1) {
           CALC expr(this->calc.calc, this->calc.calc.size() - 1, 1);
           expr += elem;
-          if (this->shortest_constants.find(expr) == this->shortest_constants.end()) {
+          if (this->shortest_constants.find(expr) ==
+              this->shortest_constants.end()) {
             return false;
           }
         }
@@ -211,7 +211,8 @@ CALC atn::Generator::get_valid_calc_elems(const CALC& all_elems,
         if (check_for_binary_const_expr && CALC_ARGS(elem) == 2) {
           CALC expr(this->calc.calc, this->calc.calc.size() - 2, 2);
           expr += elem;
-          if (this->shortest_constants.find(expr) == this->shortest_constants.end()) {
+          if (this->shortest_constants.find(expr) ==
+              this->shortest_constants.end()) {
             return false;
           }
         }
@@ -280,7 +281,7 @@ void atn::Generator::gen_approx_inline() {
 
       // Try to test approximation
       try {
-        test_result = atn::test_approx(this->calc, this->data, curr_best);
+        test_result = atn::test_approx(this->calc, curr_best);
       } catch (atn::OperatorError& e) {
         // Keep record of failure
         register_error();

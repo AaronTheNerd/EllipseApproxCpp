@@ -5,37 +5,22 @@
 #define _INCLUDE_TEST_APPROX_H_
 
 #include <tuple>
+#include <vector>
 
 #include "calculator.h"
 #include "ellipse.h"
-#ifndef NVIDIA_GPU
-#include <vector>
-#else
-#include <thrust/host_vector.h>
-#endif
 
 namespace atn {
 
-#ifndef NVIDIA_GPU
-#define TUPLE_T std::tuple
-#define GET std::get
-#define MAKE_TUPLE std::make_tuple
-#define VECTOR_T std::vector
-#else
-#define TUPLE_T thrust::tuple
-#define GET thrust::get
-#define MAKE_TUPLE thrust::make_tuple
-#define VECTOR_T thrust::host_vector
-#endif
+struct TestInfo {
+  constexpr TestInfo(atn::Ellipse ellipse, double expected)
+      : ellipse(ellipse), expected(expected) {}
 
-using Tuple = TUPLE_T<double, double, double>;
-using TestData = VECTOR_T<Tuple>;
+  atn::Ellipse ellipse;
+  double expected;
+};
 
-TestData read_test_file(const char*);
-
-double test_approx(const atn::Calculator&, const TestData&, double);
-
-void print(TestData);
+double test_approx(const atn::Calculator&, double);
 
 }  // namespace atn
 
