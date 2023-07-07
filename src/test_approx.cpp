@@ -57,8 +57,9 @@ double atn::test_approx(const atn::Calculator& calc, const atn::TestData& data,
   double result = 0.0;
 #ifndef NVIDIA_GPU
   double calc_perimeter;
+  atn::Ellipse e{0.0, 0.0};
   for (auto it = data.begin(); it != data.end(); ++it) {
-    Ellipse e{GET<0>(*it), GET<1>(*it)};
+    e = {GET<0>(*it), GET<1>(*it)};
     calc_perimeter = calc.calculate(e);
     result += 100.0 * std::abs(calc_perimeter - GET<2>(*it));
     if (max_value < result) return max_value;
