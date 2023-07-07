@@ -156,7 +156,7 @@ double atn::test_approx(const atn::Calculator& calc, double max_value) {
   for (uint16_t i = 0; i < TEST_SIZE; ++i) {
     calc_perimeter = calc.calculate(data[i].ellipse);
     result += 100.0 * std::abs(calc_perimeter - data[i].expected);
-    if (max_value < result) return max_value;
+    if (max_value < result) return max_value + EPSILON;
   }
   return result;
 }

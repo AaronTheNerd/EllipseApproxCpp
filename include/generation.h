@@ -10,7 +10,6 @@
 #include <thread>
 
 #include "calculator.h"
-#include "test_approx.h"
 
 namespace atn {
 
@@ -30,7 +29,6 @@ struct Generator {
   std::vector<LayerState> layers;
   std::set<CALC> shortest_constants;
   bool silent;
-  double epsilon;
 
   Generator(uint64_t, uint8_t, atn::Calculator, CALC, bool);
   void run();

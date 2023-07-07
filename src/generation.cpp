@@ -10,6 +10,7 @@
 #include <mutex>          // std::mutex, std::lock_guard
 #include <unordered_map>  // std::unordered_map
 
+#include "test_approx.h"
 #include "interfaces.h"
 #include "utils.h"
 
@@ -40,10 +41,9 @@ void register_test(
                            dur.count());
 }
 
-void register_submitted_test(double test_result, atn::Calculator calc,
-                             double epsilon) {
+void register_submitted_test(double test_result, atn::Calculator calc) {
   std::lock_guard<std::mutex> guard(m);
-  if (!isnan(test_result) && ((test_result + epsilon) < curr_best)) {
+  if (!isnan(test_result) && ((test_result + EPSILON) < curr_best)) {
     curr_best = test_result;
     submitted_count++;
     atn::interface::submitted(calc, test_result, submitted_count);
@@ -294,7 +294,7 @@ void atn::Generator::gen_approx_inline() {
       }
 
       // Register test result
-      register_submitted_test(test_result, this->calc, this->epsilon);
+      register_submitted_test(test_result, this->calc);
     }
 
     // Prepare to expand formula if possible

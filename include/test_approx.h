@@ -12,6 +12,8 @@
 
 namespace atn {
 
+#define EPSILON 0.001
+
 struct TestInfo {
   constexpr TestInfo(atn::Ellipse ellipse, double expected)
       : ellipse(ellipse), expected(expected) {}

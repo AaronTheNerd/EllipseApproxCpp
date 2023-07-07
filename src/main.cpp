@@ -18,7 +18,7 @@ int main(int argc, char** argv) {
   CALC all_elems = std::string() + CALC_ADD + CALC_SUB + CALC_MUL + CALC_DIV +
                    CALC_EXP + CALC_SQRT + CALC_NEG + CALC_INV + CALC_PI +
                    CALC_A + CALC_B + CALC_H + CALC_1 + CALC_2 + CALC_3 +
-                   CALC_4 + CALC_HALF + CALC_THIRD + CALC_QUARTER;
+                   CALC_4 + CALC_5 + CALC_HALF + CALC_THIRD + CALC_QUARTER;
   atn::Generator gen{atn::utils::random_seed(), 4, c, all_elems, false};
   atn::interface::generation_started(gen);
   gen.run();
