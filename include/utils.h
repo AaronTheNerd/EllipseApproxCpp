@@ -6,7 +6,7 @@
 
 #include <time.h>
 
-#include <functional>
+#include <vector>
 
 #include "calculator.h"
 
@@ -15,8 +15,6 @@ namespace atn::utils {
 struct FileNotFound : public std::exception {
   const char* what() const throw();
 };
-
-typedef std::function<bool(CALC_ELEM)> predicate;
 
 uint64_t random_seed();
 

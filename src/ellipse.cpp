@@ -3,10 +3,6 @@
 
 #include "ellipse.h"
 
-#include <cmath>
-
-#include "utils.h"
-
 double atn::Ellipse::a() const { return this->_a; }
 
 double atn::Ellipse::b() const { return this->_b; }

@@ -4,8 +4,6 @@
 #ifndef _INCLUDE_ELLIPSE_H_
 #define _INCLUDE_ELLIPSE_H_
 
-#include <stdint.h>
-
 #include <limits>
 
 /**

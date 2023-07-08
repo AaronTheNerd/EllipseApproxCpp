@@ -1,12 +1,9 @@
 // Written by Aaron Barge
 // Copyright 2022
 
-#include <iomanip>
-#include <iostream>
 #include <string>
 
 #include "calculator.h"
-#include "ellipse.h"
 #include "generation.h"
 #include "interfaces.h"
 #include "utils.h"

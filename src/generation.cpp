@@ -10,9 +10,19 @@
 #include <mutex>          // std::mutex, std::lock_guard
 #include <unordered_map>  // std::unordered_map
 
-#include "test_approx.h"
 #include "interfaces.h"
+#include "test_approx.h"
 #include "utils.h"
+
+#define USE_ONLY_BINARY_SHIFT 0
+#define USE_ONLY_UNARY_SHIFT 1
+#define CHECK_FOR_BINARY_CONST_SHIFT 2
+#define CHECK_FOR_UNARY_CONST_SHIFT 3
+
+#define USE_ONLY_BINARY_MASK (1 << USE_ONLY_BINARY_SHIFT)
+#define USE_ONLY_UNARY_MASK (1 << USE_ONLY_UNARY_SHIFT)
+#define CHECK_FOR_BINARY_CONST_MASK (1 << CHECK_FOR_BINARY_CONST_SHIFT)
+#define CHECK_FOR_UNARY_CONST_MASK (1 << CHECK_FOR_UNARY_CONST_SHIFT)
 
 std::mutex m;
 uint64_t tested_count = 0, submitted_count = 0, error_count = 0;
@@ -168,36 +178,40 @@ CALC atn::Generator::get_valid_calc_elems(const CALC& all_elems,
                                           uint8_t layer_index,
                                           uint8_t validation) const {
   CALC filtered_elems = "";
-  bool only_use_binary = this->layers.size() - layer_index == validation - 1u;
-  bool only_use_unary =
-      layer_index + 1u == this->layers.size() && validation == 1u;
   uint8_t last_index = this->calc.original_size + layer_index - 1;
-  bool check_for_unary_const_expr =
-      this->calc.calc.size() > last_index &&
-      CALC_TYPE(this->calc.calc[last_index]) == CALC_CONST;
-  bool check_for_binary_const_expr =
-      this->calc.calc.size() > last_index &&
-      this->calc.calc.size() > last_index - 1u &&
-      CALC_TYPE(this->calc.calc[last_index]) == CALC_CONST &&
-      CALC_TYPE(this->calc.calc[last_index - 1]) == CALC_CONST;
+  
+  uint8_t checks = 0;
+  bool check = this->layers.size() - layer_index == validation - 1u;
+  checks |= (check << USE_ONLY_BINARY_SHIFT);
+  check = layer_index + 1u == this->layers.size() && validation == 1u;
+  checks |= (check << USE_ONLY_UNARY_SHIFT);
+  check = this->calc.calc.size() > last_index &&
+          CALC_TYPE(this->calc.calc[last_index]) == CALC_CONST;
+  checks |= (check << CHECK_FOR_UNARY_CONST_SHIFT);
+  check = this->calc.calc.size() > last_index &&
+          this->calc.calc.size() > last_index - 1u &&
+          CALC_TYPE(this->calc.calc[last_index]) == CALC_CONST &&
+          CALC_TYPE(this->calc.calc[last_index - 1]) == CALC_CONST;
+  checks |= (check << CHECK_FOR_BINARY_CONST_SHIFT);
   std::copy_if(
       all_elems.begin(), all_elems.end(), std::back_inserter(filtered_elems),
-      [validation, only_use_binary, only_use_unary, check_for_unary_const_expr,
-       check_for_binary_const_expr, this](CALC_ELEM elem) {
+      [validation, checks, this](CALC_ELEM elem) {
         // Filter out all operators which don't have enough inputs
         if (validation < CALC_ARGS(elem)) return false;
 
         // Filter out all non-binary elements if only binary should be
         // used
-        if (only_use_binary && CALC_ARGS(elem) < 2) return false;
+        if ((checks & USE_ONLY_BINARY_MASK) && CALC_ARGS(elem) < 2)
+          return false;
 
         // Filter out all non-unary elements if only unary should be
         // used
-        if (only_use_unary && CALC_ARGS(elem) != 1) return false;
+        if ((checks & USE_ONLY_UNARY_MASK) && CALC_ARGS(elem) != 1)
+          return false;
 
         // Filter out all unary operators which would result in a constant
         // expression longer than necessary
-        if (check_for_unary_const_expr && CALC_ARGS(elem) == 1) {
+        if ((checks & CHECK_FOR_UNARY_CONST_MASK) && CALC_ARGS(elem) == 1) {
           CALC expr(this->calc.calc, this->calc.calc.size() - 1, 1);
           expr += elem;
           if (this->shortest_constants.find(expr) ==
@@ -208,7 +222,7 @@ CALC atn::Generator::get_valid_calc_elems(const CALC& all_elems,
 
         // Filter out all binary operators which would result in a constant
         // expression longer than necessary
-        if (check_for_binary_const_expr && CALC_ARGS(elem) == 2) {
+        if ((checks & CHECK_FOR_BINARY_CONST_MASK) && CALC_ARGS(elem) == 2) {
           CALC expr(this->calc.calc, this->calc.calc.size() - 2, 2);
           expr += elem;
           if (this->shortest_constants.find(expr) ==

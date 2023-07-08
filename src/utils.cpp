@@ -3,9 +3,6 @@
 
 #include "utils.h"
 
-#include <algorithm>  // std::copy_if, std::distance
-#include <iostream>
-
 const char* atn::utils::FileNotFound::what() const throw() {
   return "File failed to be open";
 }

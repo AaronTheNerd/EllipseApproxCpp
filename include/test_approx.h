@@ -4,9 +4,6 @@
 #ifndef _INCLUDE_TEST_APPROX_H_
 #define _INCLUDE_TEST_APPROX_H_
 
-#include <tuple>
-#include <vector>
-
 #include "calculator.h"
 #include "ellipse.h"
 

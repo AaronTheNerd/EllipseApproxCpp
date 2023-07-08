@@ -3,14 +3,7 @@
 
 #include "test_approx.h"
 
-#include <cmath>
-#include <fstream>
-#include <iomanip>
-#include <iostream>
-#include <sstream>
-#include <string>
-
-#include "utils.h"
+#include <math.h>
 
 #define TEST_SIZE 400
 
@@ -155,7 +148,7 @@ double atn::test_approx(const atn::Calculator& calc, double max_value) {
   double calc_perimeter;
   for (uint16_t i = 0; i < TEST_SIZE; ++i) {
     calc_perimeter = calc.calculate(data[i].ellipse);
-    result += 100.0 * std::abs(calc_perimeter - data[i].expected);
+    result += 100.0 * fabs(calc_perimeter - data[i].expected);
     if (max_value < result) return max_value + EPSILON;
   }
   return result;
