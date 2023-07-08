@@ -9,21 +9,39 @@
 #include <stdexcept>
 
 atn::Calculator::Calculator(CALC calc, uint8_t max_added)
-    : calc(calc), original_size(this->calc.size()), max_added(max_added) {
+    : calc(calc), original_size(this->calc.size()), curr_index(this->original_size), max_added(max_added), validation(0) {
   this->calc.append(this->max_added, CALC_INVALID);
+  this->init_validation();
 }
 
-int8_t atn::Calculator::validate() const {
-  int8_t result = 0;
+void atn::Calculator::init_validation() {
+  this->validation = 0;
   for (uint8_t i = 0; i < this->calc.size(); ++i) {
     CALC_ELEM elem = this->calc[i];
     if (elem == CALC_INVALID) break;
-    result += (1 - CALC_ARGS(elem));
-    if (result < 1) {
+    this->validation += (1 - CALC_ARGS(elem));
+    if (this->validation < 1) {
       throw atn::OperatorError(i);
     }
   }
-  return result;
+}
+
+void atn::Calculator::push(CALC_ELEM elem) {
+  this->calc[this->curr_index++] = elem;
+  this->validation += (1 - CALC_ARGS(elem));
+}
+
+void atn::Calculator::pop() {
+  CALC_ELEM elem = this->calc[--this->curr_index];
+  this->calc[this->curr_index] = CALC_INVALID;
+  this->validation -= (1 - CALC_ARGS(elem));
+}
+
+void atn::Calculator::truncate(uint8_t index) {
+  uint8_t replace_amount = this->calc.size() - index;
+  this->calc.replace(index, replace_amount, replace_amount, CALC_INVALID);
+  this->curr_index = index;
+  this->init_validation();
 }
 
 double atn::Calculator::calculate(const Ellipse& ellipse) const {

@@ -112,7 +112,7 @@ void atn::Generator::generate_initial_layers() {
   }
   // Filter the first layer
   this->layers[0].filtered_elems = this->get_valid_calc_elems(
-      this->layers[0].all_elems, 0, this->calc.validate());
+      this->layers[0].all_elems, 0, this->calc.validation);
 }
 
 void atn::Generator::generate_shortest_constants() {
@@ -263,30 +263,18 @@ void atn::Generator::gen_approx_inline() {
     if (this->layers[layer_index].curr_index >=
         this->layers[layer_index].filtered_elems.size()) {
       // Go up a layer
-      this->calc.calc[this->calc.original_size + layer_index] = CALC_INVALID;
+      this->calc.pop();
       layer_index--;
       continue;
     }
 
     // Add a new element to the calculator
-    this->calc.calc[this->calc.original_size + layer_index] =
-        this->layers[layer_index]
-            .filtered_elems[this->layers[layer_index].curr_index++];
+    this->calc.push(this->layers[layer_index]
+            .filtered_elems[this->layers[layer_index].curr_index++]);
     // register_formula(this->calc, std::this_thread::get_id());
 
     // Test the current calculator
-    try {
-      validation = this->calc.validate();
-    } catch (atn::OperatorError& e) {
-      // Keep record of failure
-      register_error();
-      // Go back to when the layer index was setting the operator which failed
-      layer_index = e.failed_index - this->calc.original_size;
-      uint8_t replace_amount = this->calc.calc.size() - e.failed_index;
-      this->calc.calc.replace(e.failed_index, replace_amount, replace_amount,
-                              CALC_INVALID);
-      continue;
-    }
+    validation = this->calc.validation;
 
     // Test calculator if appropriate
     if (validation == 1) {
@@ -301,9 +289,7 @@ void atn::Generator::gen_approx_inline() {
         register_error();
         // Go back to when the layer index was setting the operator which failed
         layer_index = e.failed_index - this->calc.original_size;
-        uint8_t replace_amount = this->calc.calc.size() - e.failed_index;
-        this->calc.calc.replace(e.failed_index, replace_amount, replace_amount,
-                                CALC_INVALID);
+        this->calc.truncate(e.failed_index);
         continue;
       }
 
@@ -320,7 +306,7 @@ void atn::Generator::gen_approx_inline() {
       // Reset index in next layer
       this->layers[layer_index].curr_index = 0;
     } else {
-      this->calc.calc[this->calc.original_size + layer_index] = CALC_INVALID;
+      this->calc.pop();
       continue;
     }
   }

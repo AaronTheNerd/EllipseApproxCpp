@@ -63,9 +63,14 @@ namespace atn {
 struct Calculator {
   CALC calc;
   uint8_t original_size;
+  uint8_t curr_index;
   uint8_t max_added;
+  uint8_t validation;
   Calculator(CALC, uint8_t);
-  int8_t validate() const;
+  void init_validation();
+  void push(CALC_ELEM);
+  void pop();
+  void truncate(uint8_t);
   double calculate(const Ellipse&) const;
   std::string to_str() const;
 };
